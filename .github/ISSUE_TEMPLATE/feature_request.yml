@@ -1,0 +1,140 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for First Issues
+title: "[Feature]: "
+labels: ["enhancement", "feature-request"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please provide details about the proposed feature or enhancement.
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Please check these before submitting
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have read the project roadmap and this feature is not already planned
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve?
+      placeholder: |
+        Is your feature request related to a problem? Please describe.
+        Example: "I'm always frustrated when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: What would you like to happen?
+      placeholder: |
+        Describe the solution you'd like to see implemented.
+        Be as detailed as possible about the expected behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered any alternative solutions?
+      placeholder: |
+        Describe any alternative solutions or features you've considered.
+        This helps us understand the problem space better.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Low - Nice to have
+        - Medium - Would improve user experience
+        - High - Important for workflow
+        - Critical - Blocking current usage
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What area does this feature relate to?
+      options:
+        - User Interface (UI)
+        - User Experience (UX)
+        - Performance
+        - Accessibility
+        - Search & Filtering
+        - Analytics & Reporting
+        - Developer Experience
+        - API & Integration
+        - Security
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User Story
+      description: Write a user story for this feature
+      placeholder: |
+        As a [type of user], I want [goal] so that [benefit].
+
+        Example: "As a new contributor, I want to filter issues by difficulty level so that I can find issues that match my skill level."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What needs to be implemented for this feature to be complete?
+      placeholder: |
+        List the specific requirements that need to be met:
+        - [ ] Requirement 1
+        - [ ] Requirement 2
+        - [ ] Requirement 3
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups/Wireframes
+      description: Any visual representations of the feature
+      placeholder: |
+        You can drag and drop images here or use the upload button.
+        Mockups, wireframes, or sketches help us understand your vision.
+
+  - type: textarea
+    id: technical-considerations
+    attributes:
+      label: Technical Considerations
+      description: Any technical aspects to consider?
+      placeholder: |
+        - API changes required?
+        - Database schema changes?
+        - Performance implications?
+        - Security considerations?
+        - Third-party integrations needed?
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other information about the feature request
+      placeholder: |
+        - Examples from other applications
+        - Links to relevant resources
+        - Community feedback or discussions
+        - Business justification

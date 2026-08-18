@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 1200px;
+        height: 630px;
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        color: #ffffff;
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Modern gradient overlay */
+      .gradient-overlay {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle at 30% 50%,
+          rgba(59, 130, 246, 0.15) 0%,
+          transparent 50%
+        ),
+        radial-gradient(
+          circle at 70% 50%,
+          rgba(34, 197, 94, 0.15) 0%,
+          transparent 50%
+        );
+      }
+
+      .container {
+        text-align: center;
+        z-index: 10;
+        padding: 80px;
+        max-width: 1000px;
+      }
+
+      .logo {
+        width: 96px;
+        height: 96px;
+        margin: 0 auto 40px;
+        filter: drop-shadow(0 8px 32px rgba(59, 130, 246, 0.4));
+      }
+
+      h1 {
+        font-size: 72px;
+        font-weight: 800;
+        margin-bottom: 24px;
+        color: #ffffff;
+        line-height: 1.1;
+      }
+
+      .subtitle {
+        font-size: 32px;
+        color: #94a3b8;
+        margin-bottom: 48px;
+        font-weight: 500;
+      }
+
+
+      .border-accent {
+        position: absolute;
+        inset: 0;
+        border: 3px solid rgba(59, 130, 246, 0.2);
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="gradient-overlay"></div>
+    <div class="border-accent"></div>
+
+    <div class="container">
+      <img src="/favicon.png" alt="First Issues Logo" class="logo" />
+      <h1>Find Your First<br />Open Source Contribution</h1>
+      <p class="subtitle">Discover beginner-friendly issues from GitHub</p>
+
+
+    </div>
+  </body>
+</html>

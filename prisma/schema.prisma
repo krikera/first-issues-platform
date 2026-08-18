@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     Int       @id @default(autoincrement())
+  email                  String    @unique
+  username               String    @unique
+  passwordHash           String    @map("password_hash")
+  fullName               String?   @map("full_name")
+  avatarUrl              String?   @map("avatar_url")
+  bio                    String?
+  isActive               Boolean   @default(true) @map("is_active")
+  isVerified             Boolean   @default(false) @map("is_verified")
+  emailVerificationToken String?   @map("email_verification_token")
+  passwordResetToken     String?   @map("password_reset_token")
+  passwordResetExpires   DateTime? @map("password_reset_expires")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+  lastLogin              DateTime? @map("last_login")
+
+  bookmarks Bookmark[]
+
+  @@map("users")
+}
+
+model Bookmark {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  issueId     String   @map("issue_id")
+  issueNumber Int      @map("issue_number")
+  repoOwner   String   @map("repo_owner")
+  repoName    String   @map("repo_name")
+  issueTitle  String?  @map("issue_title")
+  issueState  String?  @map("issue_state")
+  issueUrl    String?  @map("issue_url")
+  issueLabels Json     @default("[]") @map("issue_labels")
+  notes       String?
+  tags        Json     @default("[]")
+  isArchived  Boolean  @default(false) @map("is_archived")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, issueId], name: "unique_user_bookmark")
+  @@index([userId, createdAt], name: "idx_user_created")
+  @@index([issueId])
+  @@map("bookmarks")
+}
+
+model Repository {
+  id              Int      @id @default(autoincrement())
+  githubId        String   @unique @map("github_id")
+  name            String
+  description     String?
+  language        String?
+  starsCount      Int      @default(0) @map("stars_count")
+  forksCount      Int      @default(0) @map("forks_count")
+  openIssuesCount Int      @default(0) @map("open_issues_count")
+  htmlUrl         String   @map("html_url")
+  repoMetadata    Json     @default("{}") @map("repo_metadata")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  lastFetched     DateTime @default(now()) @map("last_fetched")
+  isActive        Boolean  @default(true) @map("is_active")
+
+  issues Issue[]
+
+  @@index([name])
+  @@index([language])
+  @@index([starsCount])
+  @@map("repositories")
+}
+
+model Issue {
+  id              Int       @id @default(autoincrement())
+  githubId        String    @map("github_id")
+  number          Int
+  title           String
+  body            String?
+  state           String    @default("open")
+  htmlUrl         String    @map("html_url")
+  labels          Json      @default("[]")
+  assignees       Json      @default("[]")
+  issueCreatedAt  DateTime? @map("issue_created_at")
+  issueUpdatedAt  DateTime? @map("issue_updated_at")
+  closedAt        DateTime? @map("closed_at")
+  isGoodFirstIssue Boolean  @default(false) @map("is_good_first_issue")
+  difficultyScore Float?    @map("difficulty_score")
+  estimatedTime   String?   @map("estimated_time")
+  repositoryId    Int       @map("repository_id")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  lastFetched     DateTime  @default(now()) @map("last_fetched")
+
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@index([githubId])
+  @@index([state])
+  @@index([isGoodFirstIssue])
+  @@index([repositoryId])
+  @@map("issues")
+}
+
+model Analytics {
+  id        String   @id @default(uuid())
+  eventType String   @map("event_type")
+  data      Json     @default("{}")
+  sessionId String?  @map("session_id")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  pageUrl   String?  @map("page_url")
+  referrer  String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("analytics")
+}

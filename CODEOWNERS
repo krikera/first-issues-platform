@@ -1,0 +1,10 @@
+# Default owners
+*       @krikera
+
+# Next.js Web App & API
+/src/**     @krikera
+/prisma/**  @krikera
+
+# Docs and CI
+/docs/**    @krikera
+/.github/** @krikera
