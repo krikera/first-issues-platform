@@ -58,19 +58,54 @@ export class ExternalServiceError extends ApiError {
 }
 
 export function handleApiError(error: unknown): NextResponse {
+  // Expose stack traces only in development
+  const isDev = process.env.NODE_ENV !== "production";
+  const stack = isDev && error instanceof Error ? error.stack : undefined;
+
   if (error instanceof ApiError) {
     return NextResponse.json(
       {
         error: error.message,
         ...(error.details ? { details: error.details } : {}),
+        ...(stack ? { stack } : {}),
       },
       { status: error.statusCode }
     );
   }
 
+  // Handle Prisma errors gracefully without leaking schema details
+  if (typeof error === "object" && error !== null && "code" in error) {
+    const prismaError = error as { code: string; meta?: unknown };
+    
+    // Unique constraint violation
+    if (prismaError.code === "P2002") {
+      return NextResponse.json(
+        { 
+          error: "A record with this value already exists (conflict).",
+          ...(stack ? { stack } : {}),
+        },
+        { status: 409 }
+      );
+    }
+    
+    // Record not found
+    if (prismaError.code === "P2025") {
+      return NextResponse.json(
+        { 
+          error: "The requested resource was not found.",
+          ...(stack ? { stack } : {}),
+        },
+        { status: 404 }
+      );
+    }
+  }
+
   console.error("Unhandled API error:", error);
   return NextResponse.json(
-    { error: "Internal server error" },
+    { 
+      error: "Internal server error",
+      ...(stack ? { stack } : {}),
+    },
     { status: 500 }
   );
 }

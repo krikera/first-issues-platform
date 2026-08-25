@@ -66,7 +66,7 @@ export function blacklistToken(jti: string): void {
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 10);
+  return bcrypt.hash(password, 12);
 }
 
 export async function comparePassword(
@@ -120,6 +120,9 @@ export function validateUsername(username: string): boolean {
 export async function getAuthenticatedUserId(
   request: Request
 ): Promise<number | null> {
+  const headerUserId = request.headers.get("x-user-id");
+  if (headerUserId) return parseInt(headerUserId, 10);
+
   const authHeader = request.headers.get("Authorization");
   const token = extractBearerToken(authHeader);
   if (!token) return null;

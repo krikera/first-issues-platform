@@ -9,9 +9,15 @@ import {
   validatePasswordStrength,
 } from "@/lib/auth";
 import { handleApiError, ConflictError, ValidationError } from "@/lib/error-handler";
+import { isRateLimited } from "@/lib/rate-limiter";
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
+    if (isRateLimited(`register:${ip}`, 5, 3600)) { // 5 accounts per hour
+      return NextResponse.json({ error: "Too many registration attempts" }, { status: 429 });
+    }
+
     const body = await request.json();
     const { email, username, password, full_name } = body;
 

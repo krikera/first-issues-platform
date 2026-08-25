@@ -8,13 +8,18 @@ import { handleApiError } from "@/lib/error-handler";
 
 export async function POST(request: Request) {
   try {
-    const authHeader = request.headers.get("Authorization");
-    const token = extractBearerToken(authHeader);
-
-    if (token) {
-      const payload = await verifyToken(token);
-      if (payload?.jti) {
-        blacklistToken(payload.jti);
+    const jti = request.headers.get("x-jti");
+    if (jti) {
+      blacklistToken(jti);
+    } else {
+      // Fallback
+      const authHeader = request.headers.get("Authorization");
+      const token = extractBearerToken(authHeader);
+      if (token) {
+        const payload = await verifyToken(token);
+        if (payload?.jti) {
+          blacklistToken(payload.jti);
+        }
       }
     }
 

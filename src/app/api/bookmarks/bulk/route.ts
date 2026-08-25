@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUserId } from "@/lib/auth";
-import { handleApiError, AuthenticationError, ValidationError } from "@/lib/error-handler";
+import { handleApiError, AuthenticationError, ValidationError, ForbiddenError } from "@/lib/error-handler";
 
 export async function POST(request: Request) {
   try {
@@ -15,9 +15,19 @@ export async function POST(request: Request) {
       throw new ValidationError("bookmark_ids array is required");
     }
 
-    const result = await prisma.bookmark.deleteMany({
+    const bookmarks = await prisma.bookmark.findMany({
       where: {
         id: { in: bookmark_ids.map((id: number) => Number(id)) },
+      },
+      select: { id: true, userId: true },
+    });
+
+    const unauthorized = bookmarks.some((b) => b.userId !== userId);
+    if (unauthorized) throw new ForbiddenError("Cannot delete bookmarks owned by another user");
+
+    const result = await prisma.bookmark.deleteMany({
+      where: {
+        id: { in: bookmarks.map((b) => b.id) },
         userId,
       },
     });

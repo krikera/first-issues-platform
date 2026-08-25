@@ -6,9 +6,15 @@ import {
   signRefreshToken,
 } from "@/lib/auth";
 import { handleApiError, ValidationError, AuthenticationError } from "@/lib/error-handler";
+import { isRateLimited } from "@/lib/rate-limiter";
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
+    if (isRateLimited(`login:${ip}`, 10, 300)) { // 10 attempts per 5 minutes
+      return NextResponse.json({ error: "Too many login attempts" }, { status: 429 });
+    }
+
     const body = await request.json();
     const { email, password } = body;
 
