@@ -20,7 +20,7 @@ export async function GET(
     if (!bookmark) throw new NotFoundError("Bookmark not found");
     if (bookmark.userId !== userId) throw new ForbiddenError();
 
-    return NextResponse.json({ bookmark });
+    return NextResponse.json({ bookmark: formatBookmark(bookmark) });
   } catch (error) {
     return handleApiError(error);
   }
@@ -55,10 +55,27 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json({ bookmark: updated });
+    return NextResponse.json({ bookmark: formatBookmark(updated) });
   } catch (error) {
     return handleApiError(error);
   }
+}
+
+function formatBookmark(b: { id: number; issueId: string; issueNumber: number; repoOwner: string; repoName: string; issueTitle: string | null; issueState: string | null; issueUrl: string | null; issueLabels: unknown; notes: string | null; tags: unknown; createdAt: Date }) {
+  return {
+    id: b.id,
+    issue_id: b.issueId,
+    issue_number: b.issueNumber,
+    repo_owner: b.repoOwner,
+    repo_name: b.repoName,
+    issue_title: b.issueTitle,
+    issue_state: b.issueState,
+    issue_url: b.issueUrl,
+    issue_labels: b.issueLabels,
+    notes: b.notes,
+    tags: b.tags,
+    created_at: b.createdAt.toISOString(),
+  };
 }
 
 // DELETE /api/bookmarks/[id]

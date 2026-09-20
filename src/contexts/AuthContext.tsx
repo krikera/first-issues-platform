@@ -129,8 +129,16 @@ if (typeof window !== "undefined") {
     async (error: AxiosError) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const originalRequest = error.config as any;
+      const requestUrl = originalRequest?.url || "";
 
-      if (error.response?.status === 401 && !originalRequest._retry) {
+      // Do NOT intercept auth endpoints (login, register, refresh, logout) - let their errors bubble to caller!
+      const isAuthEndpoint =
+        requestUrl.includes("/api/auth/login") ||
+        requestUrl.includes("/api/auth/register") ||
+        requestUrl.includes("/api/auth/refresh") ||
+        requestUrl.includes("/api/auth/logout");
+
+      if (error.response?.status === 401 && !originalRequest?._retry && !isAuthEndpoint) {
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
@@ -150,7 +158,10 @@ if (typeof window !== "undefined") {
         const refreshToken = getStoredToken(TOKEN_KEYS.REFRESH);
         if (!refreshToken) {
           clearAllTokens();
-          window.location.href = "/";
+          if (typeof window !== "undefined" && window.location.pathname !== "/login" && window.location.pathname !== "/register") {
+            const redirectUrl = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = `/login?redirect=${redirectUrl}`;
+          }
           return Promise.reject(error);
         }
 
@@ -172,7 +183,10 @@ if (typeof window !== "undefined") {
         } catch (refreshError) {
           processQueue(refreshError as Error, null);
           clearAllTokens();
-          window.location.href = "/";
+          if (typeof window !== "undefined" && window.location.pathname !== "/login" && window.location.pathname !== "/register") {
+            const redirectUrl = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = `/login?redirect=${redirectUrl}`;
+          }
           return Promise.reject(refreshError);
         } finally {
           isRefreshing = false;
@@ -249,8 +263,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       setIsLoading(true);
-      await api.post("/api/auth/register", data);
-      await login({ email: data.email, password: data.password });
+      const response = await api.post("/api/auth/register", data);
+      const { access_token, refresh_token, user: userData } = response.data;
+      if (access_token && refresh_token) {
+        setStoredToken(TOKEN_KEYS.ACCESS, access_token);
+        setStoredToken(TOKEN_KEYS.REFRESH, refresh_token);
+        setUser(userData);
+      } else {
+        await login({ email: data.email, password: data.password });
+      }
     } catch (err) {
       const errorMessage =
         err instanceof AxiosError
@@ -264,9 +285,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    const accessToken = getStoredToken(TOKEN_KEYS.ACCESS);
+    const refreshToken = getStoredToken(TOKEN_KEYS.REFRESH);
+    if (accessToken || refreshToken) {
+      axios
+        .post(
+          "/api/auth/logout",
+          { refresh_token: refreshToken },
+          { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined }
+        )
+        .catch(() => {});
+    }
     setUser(null);
     clearAllTokens();
-    api.post("/api/auth/logout").catch(() => {});
   };
 
   const refreshAccessToken = async () => {

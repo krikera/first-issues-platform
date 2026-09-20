@@ -13,6 +13,7 @@ const sanitizeSearchQuery = (query: string): string => {
     .replace(/[{}]/g, "")
     .replace(/\$\w+/g, "")
     .replace(/\.\.\./g, "")
+    .replace(/\b(is:private|is:internal|org:\S+|repo:\S+|user:\S+)\b/gi, "")
     .slice(0, 200)
     .trim();
 };
@@ -37,7 +38,7 @@ interface GitHubIssue {
   comments: { totalCount: number };
   timelineItems: {
     totalCount: number;
-    nodes: Array<{ source?: { state: string } }>;
+    nodes: Array<{ source?: { __typename?: string; state?: string } }>;
   };
   repository: {
     nameWithOwner: string;
@@ -85,11 +86,14 @@ interface GitHubRepositorySearchResponse {
   };
 }
 
-const graphqlWithAuth = graphql.defaults({
-  headers: {
-    ...(GITHUB_TOKEN ? { authorization: `token ${GITHUB_TOKEN}` } : {}),
-  },
-});
+function getGraphQLClient() {
+  const token = process.env.GITHUB_API_KEY || "";
+  return graphql.defaults({
+    headers: {
+      ...(token ? { authorization: `token ${token}` } : {}),
+    },
+  });
+}
 
 async function executeGraphQLWithTimeout<T>(
   query: string,
@@ -97,10 +101,11 @@ async function executeGraphQLWithTimeout<T>(
   timeoutMs = 30000,
   maxRetries = 3
 ): Promise<T> {
+  const client = getGraphQLClient();
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const response = await Promise.race([
-        graphqlWithAuth<T>(query, variables),
+        client<T>(query, variables),
         new Promise<never>((_, reject) =>
           setTimeout(() => reject(new Error("Request timeout")), timeoutMs)
         ),
@@ -160,11 +165,14 @@ export async function fetchGitHubIssues(params: FilterParams) {
             assignees(first: 1) { totalCount }
             labels(first: 10) { nodes { name } }
             comments { totalCount }
-            timelineItems(first: 1, itemTypes: [CROSS_REFERENCED_EVENT]) {
+            timelineItems(first: 5, itemTypes: [CROSS_REFERENCED_EVENT]) {
               totalCount
               nodes {
                 ... on CrossReferencedEvent {
-                  source { ... on PullRequest { state } }
+                  source {
+                    __typename
+                    ... on PullRequest { state }
+                  }
                 }
               }
             }
@@ -174,7 +182,7 @@ export async function fetchGitHubIssues(params: FilterParams) {
     }
   `;
 
-  let queryString = 'is:open is:issue label:"good first issue" archived:false';
+  let queryString = 'is:public is:open is:issue label:"good first issue" archived:false';
   if (sanitizedParams.language) {
     const languages = sanitizedParams.language
       .split(" ")
@@ -183,10 +191,12 @@ export async function fetchGitHubIssues(params: FilterParams) {
       queryString += ` ${languages.map((lang: string) => `language:${lang}`).join(" ")}`;
     }
   }
-  if (params.isAssigned) queryString += " assigned:*";
-  else queryString += " no:assignee";
-  if (params.hasPullRequests) queryString += " linked:pr";
-  else queryString += " -linked:pr";
+  if (!params.isAssigned) {
+    queryString += " no:assignee";
+  }
+  if (params.hasPullRequests) {
+    queryString += " linked:pr";
+  }
 
   if (params.dateFrom?.trim() && /^\d{4}-\d{2}-\d{2}$/.test(params.dateFrom)) {
     if (params.dateTo?.trim() && /^\d{4}-\d{2}-\d{2}$/.test(params.dateTo)) {
@@ -209,56 +219,62 @@ export async function fetchGitHubIssues(params: FilterParams) {
     const response = await executeGraphQLWithTimeout<GitHubSearchResponse>(query, variables);
 
     const issues: Issue[] = response.search.nodes
-      .filter((issue: GitHubIssue) => {
-        const hasLicense = Boolean(issue.repository.licenseInfo);
-        const stars = issue.repository.stargazerCount;
-        const forks = issue.repository.forkCount;
-        return (
-          stars >= sanitizedParams.minStars &&
-          stars <= sanitizedParams.maxStars &&
-          forks >= sanitizedParams.minForks &&
-          hasLicense
+      .filter((issue: GitHubIssue) => Boolean(issue && issue.repository))
+      .map((issue: GitHubIssue) => {
+        const prEvent = issue.timelineItems?.nodes?.find(
+          (node) => node.source?.__typename === "PullRequest" || (node.source && "state" in node.source)
         );
-      })
-      .map((issue: GitHubIssue) => ({
-        id: issue.url,
-        title: issue.title,
-        html_url: issue.url,
-        created_at: issue.createdAt,
-        updated_at: issue.updatedAt,
-        repository_url: issue.repository.url,
-        repository_name: issue.repository.nameWithOwner,
-        license: issue.repository.licenseInfo
-          ? {
-              key: issue.repository.licenseInfo.key,
-              name: issue.repository.licenseInfo.name,
-              spdx_id: issue.repository.licenseInfo.spdxId,
-              url: issue.repository.licenseInfo.url,
-              node_id: issue.repository.licenseInfo.node_id,
-            }
-          : null,
-        stars_count: issue.repository.stargazerCount,
-        fork_count: issue.repository.forkCount,
-        language: issue.repository.primaryLanguage?.name || null,
-        is_assigned: issue.assignees.totalCount > 0,
-        labels: issue.labels.nodes.map((label) => label.name),
-        comments_count: issue.comments.totalCount,
-        has_pull_requests: issue.timelineItems.totalCount > 0,
-        pr_status:
-          issue.timelineItems.totalCount > 0
-            ? issue.timelineItems.nodes[0]?.source?.state || null
+        const hasPullRequests = Boolean(prEvent);
+        const prStatus = prEvent?.source?.state || null;
+
+        return {
+          id: issue.url,
+          title: issue.title,
+          html_url: issue.url,
+          created_at: issue.createdAt,
+          updated_at: issue.updatedAt,
+          repository_url: issue.repository.url,
+          repository_name: issue.repository.nameWithOwner,
+          license: issue.repository.licenseInfo
+            ? {
+                key: issue.repository.licenseInfo.key,
+                name: issue.repository.licenseInfo.name,
+                spdx_id: issue.repository.licenseInfo.spdxId,
+                url: issue.repository.licenseInfo.url,
+                node_id: issue.repository.licenseInfo.node_id,
+              }
             : null,
-      }));
+          stars_count: issue.repository.stargazerCount,
+          fork_count: issue.repository.forkCount,
+          language: issue.repository.primaryLanguage?.name || null,
+          is_assigned: issue.assignees.totalCount > 0,
+          labels: issue.labels.nodes.map((label) => label.name),
+          comments_count: issue.comments.totalCount,
+          has_pull_requests: hasPullRequests,
+          pr_status: prStatus,
+        };
+      });
 
     const filteredIssues = issues.filter((issue) => {
-      if (!params.hasPullRequests) return !issue.has_pull_requests;
-      return (
-        issue.has_pull_requests &&
-        (issue.pr_status === "OPEN" ||
-          issue.pr_status === "DRAFT" ||
-          issue.pr_status === "CLOSED" ||
-          issue.pr_status === null)
-      );
+      if (!params.isAssigned && issue.is_assigned) {
+        return false;
+      }
+      if (sanitizedParams.minStars > 0 && issue.stars_count < sanitizedParams.minStars) {
+        return false;
+      }
+      if (sanitizedParams.maxStars < 1000000 && issue.stars_count > sanitizedParams.maxStars) {
+        return false;
+      }
+      if (sanitizedParams.minForks > 0 && issue.fork_count < sanitizedParams.minForks) {
+        return false;
+      }
+      if (!params.hasPullRequests && issue.has_pull_requests) {
+        return false;
+      }
+      if (params.hasPullRequests && !issue.has_pull_requests) {
+        return false;
+      }
+      return true;
     });
 
     const sortedIssues = filteredIssues.sort(
@@ -279,7 +295,8 @@ export async function fetchGitHubIssues(params: FilterParams) {
 // Helper for Repository search (combines category and framework logic)
 async function fetchGitHubIssuesByRepositoryQuery(
   params: FilterParams,
-  buildQueryString: () => string
+  buildQueryString: () => string,
+  depth = 0
 ) {
   const query = `query($queryString: String!, $cursor: String) {
     search(query: $queryString, type: REPOSITORY, first: ${REPOS_PER_PAGE}, after: $cursor) {
@@ -289,7 +306,7 @@ async function fetchGitHubIssuesByRepositoryQuery(
           nameWithOwner url stargazerCount forkCount
           licenseInfo { name }
           primaryLanguage { name }
-          issues(labels: ["good first issue"], states: OPEN, first: ${ISSUES_PER_REPO}, orderBy: {field: CREATED_AT, direction: DESC}) {
+          issues(labels: ["good first issue", "good-first-issue"], states: OPEN, first: ${ISSUES_PER_REPO}, orderBy: {field: CREATED_AT, direction: DESC}) {
             nodes {
               title url createdAt
               assignees(first: 1) { totalCount }
@@ -333,13 +350,17 @@ async function fetchGitHubIssuesByRepositoryQuery(
           pr_status: null,
         }))
       )
-      .filter((issue) => Boolean(issue.license));
+      .filter((issue) => {
+        if (!params.isAssigned && issue.is_assigned) return false;
+        return true;
+      });
 
-    if (issues.length === 0 && response.search.pageInfo.hasNextPage) {
-      // Recurse to next page if current page yielded 0 issues after filtering
+    if (issues.length === 0 && response.search.pageInfo.hasNextPage && depth < 3) {
+      // Recurse to next page if current page yielded 0 issues after filtering (max 3 pages)
       return fetchGitHubIssuesByRepositoryQuery(
         { ...params, cursor: response.search.pageInfo.endCursor },
-        buildQueryString
+        buildQueryString,
+        depth + 1
       );
     }
 
@@ -355,6 +376,24 @@ async function fetchGitHubIssuesByRepositoryQuery(
 }
 
 export async function fetchGitHubIssuesByCategory(params: FilterParams) {
+  // If category is "all" or "good-first-issue", route directly to standard issue search
+  if (!params.category || params.category === "all" || params.category === "good-first-issue") {
+    return fetchGitHubIssues(params);
+  }
+
+  const labelCategories: Record<string, string> = {
+    "help-wanted": "help wanted",
+    bug: "bug",
+    enhancement: "enhancement",
+  };
+
+  if (labelCategories[params.category]) {
+    return fetchGitHubIssues({
+      ...params,
+      searchQuery: `${params.searchQuery ? params.searchQuery + " " : ""}label:"${labelCategories[params.category]}"`,
+    });
+  }
+
   return fetchGitHubIssuesByRepositoryQuery(params, () => {
     let queryString = "is:public archived:false";
     if (params.language) {
@@ -363,34 +402,42 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
     queryString += ` stars:${params.minStars}..${params.maxStars}`;
     queryString += ` forks:>=${params.minForks}`;
 
-    if (params.category && params.category !== "all") {
-      const categoryMap: Record<string, string> = {
-        "web-dev": "web",
-        "mobile-dev": "mobile",
-        "data-science": "data-science",
-        "machine-learning": "machine-learning",
-        devops: "devops",
-        cybersecurity: "security",
-        documentation: "documentation",
-      };
-      const topic = categoryMap[params.category];
-      if (topic) queryString += ` topic:${topic}`;
-    }
+    const categoryMap: Record<string, string> = {
+      "web-dev": "web",
+      "mobile-dev": "mobile",
+      "data-science": "data-science",
+      "machine-learning": "machine-learning",
+      devops: "devops",
+      cybersecurity: "security",
+      documentation: "documentation",
+    };
+    const rawTopic = categoryMap[params.category] || params.category;
+    const topic = rawTopic.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 50);
+    if (topic) queryString += ` topic:${topic}`;
 
-    if (params.searchQuery) queryString += ` ${params.searchQuery} in:name,description`;
+    const cleanSearch = sanitizeSearchQuery(params.searchQuery || "");
+    if (cleanSearch) queryString += ` ${cleanSearch} in:name,description`;
     return queryString;
   });
 }
 
 export async function fetchGitHubIssuesByFramework(params: FilterParams) {
+  const frameworkSlug = (params.framework || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
   return fetchGitHubIssuesByRepositoryQuery(params, () => {
-    let queryString = `topic:${params.framework} is:public archived:false`;
+    let queryString = `topic:${frameworkSlug} is:public archived:false`;
     if (params.language) {
       queryString += ` ${params.language.split(" ").map((lang) => `language:${lang}`).join(" ")}`;
     }
     queryString += ` stars:${params.minStars}..${params.maxStars}`;
     queryString += ` forks:>=${params.minForks}`;
-    if (params.searchQuery) queryString += ` ${params.searchQuery} in:name,description`;
+    const cleanSearch = sanitizeSearchQuery(params.searchQuery || "");
+    if (cleanSearch) queryString += ` ${cleanSearch} in:name,description`;
     return queryString;
   });
 }

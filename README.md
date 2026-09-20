@@ -11,7 +11,7 @@ First Issues is a web application designed to help developers find beginner-frie
 ### Core Capabilities
 - **GitHub Issue Discovery**: Query open-source issues labeled "good first issue" in real-time via the GitHub GraphQL API.
 - **Advanced Filtering**: Filter issues by programming language, repository star count, fork count, assigned status, and update recency.
-- **Automated Difficulty Scoring**: Heuristic scoring engine calculating issue complexity based on body length, code block count, labels, and issue age.
+- **Automated Difficulty Scoring**: Heuristic scoring engine calculating issue complexity based on labels, comment count, repository stars, issue age, and assignee/PR status.
 - **User Authentication**: Secure user registration, authentication, and profile management using JWT tokens (`jose` + `bcryptjs`).
 - **Bookmark Management & Sync**: Save issues locally or sync them directly with a PostgreSQL database when authenticated.
 - **Repository Analytics**: Visual metrics on language distribution, issue statistics, and repository recommendations.
@@ -44,7 +44,7 @@ First Issues is a web application designed to help developers find beginner-frie
 
 1. Clone the repository and install dependencies:
    ```bash
-   git clone https://github.com/yourusername/first-issues.git
+   git clone https://github.com/krikera/first-issues-platform.git
    cd first-issues
    npm install
    ```

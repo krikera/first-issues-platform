@@ -5,8 +5,7 @@ import { verifyToken, extractBearerToken } from "./lib/auth";
 export const config = {
   matcher: [
     "/api/bookmarks/:path*",
-    "/api/auth/me",
-    "/api/auth/logout"
+    "/api/auth/me"
   ],
 };
 

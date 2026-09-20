@@ -6,288 +6,93 @@ import {
   CodeIcon,
   RocketIcon,
   ArrowLeftIcon,
-} from "@radix-ui/react-icons"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+} from "@radix-ui/react-icons";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   useState,
   useEffect,
   useCallback,
-  ReactNode,
-  ButtonHTMLAttributes,
-  CSSProperties,
-} from "react"
+} from "react";
 
-import { useAuth, api } from "@/contexts/AuthContext"
-
-// Define component props types
-interface CardProps {
-  children: ReactNode
-  className?: string
-}
-
-interface CardHeaderProps {
-  children: ReactNode
-  className?: string
-}
-
-interface CardTitleProps {
-  children: ReactNode
-  className?: string
-}
-
-interface CardDescriptionProps {
-  children: ReactNode
-  className?: string
-}
-
-interface CardContentProps {
-  children: ReactNode
-  className?: string
-}
-
-type BadgeVariant = "default" | "secondary" | "outline"
-
-interface BadgeProps {
-  children: ReactNode
-  variant?: BadgeVariant
-  className?: string
-  style?: CSSProperties
-}
-
-type ButtonVariant = "default" | "outline" | "icon"
-type ButtonSize = "default" | "sm" | "lg" | "icon"
-
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  children: ReactNode
-  variant?: ButtonVariant
-  size?: ButtonSize
-  className?: string
-}
-
-interface TabsProps {
-  children: ReactNode
-  value: string
-  onValueChange: (value: string) => void
-  className?: string
-}
-
-interface TabsListProps {
-  children: ReactNode
-  className?: string
-}
-
-interface TabsTriggerProps {
-  children: ReactNode
-  value: string
-  className?: string
-  onClick?: () => void
-}
-
-// Removed unused TabsContentProps
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 interface SkeletonProps {
-  className?: string
+  className?: string;
 }
-
-// Import UI components that exist in the project
-const Card = ({ children, className = "" }: CardProps) => (
-  <div
-    className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`}
-  >
-    {children}
-  </div>
-)
-
-const CardHeader = ({
-  children,
-  className = "",
-  ...props
-}: CardHeaderProps) => (
-  <div className={`flex flex-col space-y-1.5 p-6 ${className}`} {...props}>
-    {children}
-  </div>
-)
-
-const CardTitle = ({ children, className = "" }: CardTitleProps) => (
-  <h3
-    className={`text-lg font-semibold leading-none tracking-tight ${className}`}
-  >
-    {children}
-  </h3>
-)
-
-const CardDescription = ({
-  children,
-  className = "",
-}: CardDescriptionProps) => (
-  <p className={`text-sm text-muted-foreground ${className}`}>{children}</p>
-)
-
-const CardContent = ({ children, className = "" }: CardContentProps) => (
-  <div className={`p-6 pt-0 ${className}`}>{children}</div>
-)
-
-const Badge = ({
-  children,
-  variant = "default",
-  className = "",
-  style,
-}: BadgeProps) => {
-  const variantClasses: Record<BadgeVariant, string> = {
-    default: "bg-primary text-primary-foreground hover:bg-primary/80",
-    secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-    outline:
-      "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-  }
-
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none ${variantClasses[variant]} ${className}`}
-      style={style}
-    >
-      {children}
-    </span>
-  )
-}
-
-const Button = ({
-  children,
-  variant = "default",
-  size = "default",
-  className = "",
-  onClick,
-  ...props
-}: ButtonProps) => {
-  const variantClasses: Record<ButtonVariant, string> = {
-    default: "bg-primary text-primary-foreground hover:bg-primary/90",
-    outline:
-      "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-    icon: "h-10 w-10 p-0",
-  }
-
-  const sizeClasses: Record<ButtonSize, string> = {
-    default: "h-10 px-4 py-2",
-    sm: "h-9 rounded-md px-3",
-    lg: "h-11 rounded-md px-8",
-    icon: "h-10 w-10",
-  }
-
-  return (
-    <button
-      className={`inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
-      onClick={onClick}
-      {...props}
-    >
-      {children}
-    </button>
-  )
-}
-
-const Tabs = ({ children, value, className = "" }: TabsProps) => {
-  return (
-    <div className={`${className}`} data-state={value}>
-      {children}
-    </div>
-  )
-}
-
-const TabsList = ({ children, className = "" }: TabsListProps) => {
-  return (
-    <div
-      className={`inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground ${className}`}
-    >
-      {children}
-    </div>
-  )
-}
-
-const TabsTrigger = ({
-  children,
-  className = "",
-  onClick,
-}: TabsTriggerProps) => {
-  return (
-    <button
-      className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all 
-        text-muted-foreground hover:bg-accent ${className}`}
-      onClick={onClick}
-    >
-      {children}
-    </button>
-  )
-}
-
-// Removed unused TabsContent component
 
 const Skeleton = ({ className = "" }: SkeletonProps) => (
-  <div className={`animate-pulse rounded-md bg-muted ${className}`} />
-)
+  <div className={`animate-pulse rounded-[6px] bg-surface-2/60 ${className}`} />
+);
 
 // Define API response types
 interface Repository {
-  name: string
-  issue_count: number
-  stars: number
-  language: string
+  name: string;
+  issue_count: number;
+  stars: number;
+  language: string;
 }
 
 interface RepoStatsResponse {
-  total_issues: number
-  top_repositories: Repository[]
-  language_distribution: Record<string, number>
-  generated_at: string
+  total_issues: number;
+  top_repositories: Repository[];
+  language_distribution: Record<string, number>;
+  generated_at: string;
 }
 
 interface Recommendation {
-  title: string
-  url: string
-  repository: string[]
-  labels: string[]
-  created_at: string
-  reason: string
+  title: string;
+  url: string;
+  repository: string[];
+  labels: string[];
+  created_at: string;
+  reason: string;
 }
 
-// Removed unused RecommendationsResponse interface
-
 interface CacheStats {
-  total_cache_entries: number
-  valid_cache_entries: number
-  cache_hit_ratio: string
-  cache_duration_seconds: number
+  total_cache_entries: number;
+  status: string;
+  cache_duration_seconds: number;
 }
 
 const AnalyticsDashboard = () => {
-  const { isAuthenticated } = useAuth()
-  const router = useRouter()
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState("overview")
-  const [repoStats, setRepoStats] = useState<RepoStatsResponse | null>(null)
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([])
-  const [cacheStats, setCacheStats] = useState<CacheStats | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
-  const [language, setLanguage] = useState<string>("")
+  const [activeTab, setActiveTab] = useState<"overview" | "repositories" | "recommendations">("overview");
+  const [repoStats, setRepoStats] = useState<RepoStatsResponse | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [cacheStats, setCacheStats] = useState<CacheStats | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [language, setLanguage] = useState<string>("");
 
-  // Redirect to login if not authenticated
+  // Redirect to login only if auth verification finished and user is not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login?redirect=/analytics")
+    if (!isLoading && !isAuthenticated) {
+      router.push("/login?redirect=/analytics");
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, isLoading, router]);
 
-  // API URL — use internal Next.js API routes
   const fetchRepositoryStats = useCallback(
-    async (lang: string = "") => {
+    async (lang: string = "", updateLoading = true, forceRefresh = false) => {
       if (!isAuthenticated) return;
 
-      setLoading(true);
+      if (updateLoading) setLoading(true);
       setError(null);
 
       try {
-        const url = `/api/github/issues${lang ? `?language=${lang}` : ""}`;
+        const params = new URLSearchParams();
+        if (lang) params.set("language", lang);
+        if (forceRefresh) params.set("refresh", "true");
+        const qs = params.toString();
+        const url = `/api/github/issues${qs ? `?${qs}` : ""}`;
         const res = await fetch(url);
-        if (!res.ok) throw new Error("Failed to fetch repository statistics");
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.error || "Failed to fetch repository statistics");
+        }
         const data = await res.json();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const issues = data.issues || [];
@@ -316,18 +121,18 @@ const AnalyticsDashboard = () => {
         });
       } catch (err: unknown) {
         console.error("Error fetching repository stats:", err);
-        setError("Failed to fetch repository statistics.");
+        setError(err instanceof Error ? err.message : "Failed to fetch repository statistics.");
       } finally {
-        setLoading(false);
+        if (updateLoading) setLoading(false);
       }
     },
     [isAuthenticated]
   );
 
-  const fetchRecommendations = useCallback(async () => {
+  const fetchRecommendations = useCallback(async (updateLoading = true) => {
     if (!isAuthenticated) return;
 
-    setLoading(true);
+    if (updateLoading) setLoading(true);
     setError(null);
 
     try {
@@ -341,46 +146,67 @@ const AnalyticsDashboard = () => {
         repository: [i.repository_name],
         labels: i.labels || [],
         created_at: i.created_at,
-        reason: "Recommended beginner-friendly issue",
+        reason: "good-first-issue",
       }));
       setRecommendations(recs);
     } catch (err: unknown) {
       console.error("Error fetching recommendations:", err);
     } finally {
-      setLoading(false);
+      if (updateLoading) setLoading(false);
     }
   }, [isAuthenticated]);
 
   const fetchCacheStats = useCallback(async () => {
-    setCacheStats({
-      total_cache_entries: 24,
-      valid_cache_entries: 20,
-      cache_hit_ratio: "83.3%",
-      cache_duration_seconds: 300,
-    });
+    try {
+      const res = await fetch("/api/health");
+      if (res.ok) {
+        const data = await res.json();
+        const cache = data.services?.cache;
+        const memorySize = cache?.memorySize ?? cache?.memory?.size ?? 0;
+        setCacheStats({
+          total_cache_entries: memorySize,
+          status: cache?.memory?.status === "ok" ? "Active" : "Ready",
+          cache_duration_seconds: cache?.cacheDuration ?? 300,
+        });
+      }
+    } catch {
+      setCacheStats({
+        total_cache_entries: 0,
+        status: "Unavailable",
+        cache_duration_seconds: 300,
+      });
+    }
   }, []);
 
   const clearCache = async () => {
+    fetchRepositoryStats(language, true, true);
     fetchCacheStats();
-    fetchRepositoryStats(language);
   };
 
   useEffect(() => {
+    let isMounted = true;
     const fetchData = async () => {
-      await fetchRepositoryStats();
-      await fetchRecommendations();
-      await fetchCacheStats();
+      if (!isAuthenticated) return;
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchRepositoryStats("", false),
+          fetchRecommendations(false),
+          fetchCacheStats(),
+        ]);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
     };
     fetchData();
-  }, [fetchRepositoryStats, fetchRecommendations, fetchCacheStats]);
+    return () => {
+      isMounted = false;
+    };
+  }, [isAuthenticated, fetchRepositoryStats, fetchRecommendations, fetchCacheStats]);
 
   const handleLanguageChange = (lang: string) => {
     setLanguage(lang);
     fetchRepositoryStats(lang);
-  };
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
   };
 
   const popularLanguages = [
@@ -392,16 +218,14 @@ const AnalyticsDashboard = () => {
     "Java",
   ];
 
-  // Prepare chart data
   const prepareLanguageChartData = () => {
     if (!repoStats?.language_distribution) {
       return [];
     }
-
     return Object.entries(repoStats.language_distribution).slice(0, 10);
   };
 
-  const getColorForLanguage = (language: string) => {
+  const getColorForLanguage = (lang: string) => {
     const colors: Record<string, string> = {
       JavaScript: "#f7df1e",
       TypeScript: "#3178c6",
@@ -413,13 +237,23 @@ const AnalyticsDashboard = () => {
       Ruby: "#701516",
       PHP: "#4f5d95",
       Swift: "#ffac45",
-      Default: "#6e7781",
+      Default: "#5e6ad2",
     };
 
-    return colors[language] || colors.Default;
+    return colors[lang] || colors.Default;
   };
 
-  // Return null while redirecting to login
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <p className="text-[14px] text-ink-subtle font-mono">Verifying credentials...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return null;
   }
@@ -430,444 +264,421 @@ const AnalyticsDashboard = () => {
         <div className="flex items-center gap-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-1.5 text-[13px] text-ink-subtle hover:text-ink transition-colors font-medium"
           >
-            <ArrowLeftIcon className="h-4 w-4" />
+            <ArrowLeftIcon className="h-3.5 w-3.5" />
             Back to Issues
           </Link>
         </div>
-        <h2 className="text-3xl font-bold tracking-tight">
+        <h1 className="font-display text-[26px] sm:text-[30px] font-semibold tracking-[-0.6px] text-ink">
           Analytics Dashboard
-        </h2>
-        <p className="text-muted-foreground">
-          Detailed analytics from GitHub for open source contributions
+        </h1>
+        <p className="text-[14px] text-ink-subtle">
+          Insights and distribution across retrieved GitHub open source repositories
         </p>
       </div>
 
       {error ? (
-        <div className="p-4 mb-4 text-red-700 bg-red-100 border border-red-400 rounded-md dark:bg-red-900/30 dark:text-red-300 dark:border-red-800">
-          <div className="font-medium">Notice</div>
+        <div className="p-4 text-[13px] text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-[8px]">
+          <div className="font-semibold mb-0.5">Notice</div>
           <div>{error}</div>
         </div>
       ) : null}
 
-      <Tabs
-        value={activeTab}
-        onValueChange={handleTabChange}
-        className="space-y-4"
-      >
-        <TabsList className="grid grid-cols-3 lg:w-[400px]">
-          <TabsTrigger
-            value="overview"
-            className={
-              activeTab === "overview" ? "bg-background text-foreground" : ""
-            }
-            onClick={() => handleTabChange("overview")}
+      {/* Linear Tab Bar */}
+      <div className="flex items-center">
+        <div className="inline-flex p-1 bg-surface-1 border border-hairline rounded-[8px] gap-1">
+          <button
+            onClick={() => setActiveTab("overview")}
+            className={`px-3.5 py-1.5 rounded-[6px] text-[13px] font-medium transition-all cursor-pointer ${activeTab === "overview"
+                ? "bg-surface-2 text-ink border border-hairline font-semibold"
+                : "text-ink-subtle hover:text-ink border border-transparent"
+              }`}
           >
             Overview
-          </TabsTrigger>
-          <TabsTrigger
-            value="repositories"
-            className={
-              activeTab === "repositories"
-                ? "bg-background text-foreground"
-                : ""
-            }
-            onClick={() => handleTabChange("repositories")}
+          </button>
+          <button
+            onClick={() => setActiveTab("repositories")}
+            className={`px-3.5 py-1.5 rounded-[6px] text-[13px] font-medium transition-all cursor-pointer ${activeTab === "repositories"
+                ? "bg-surface-2 text-ink border border-hairline font-semibold"
+                : "text-ink-subtle hover:text-ink border border-transparent"
+              }`}
           >
             Repositories
-          </TabsTrigger>
-          <TabsTrigger
-            value="recommendations"
-            className={
-              activeTab === "recommendations"
-                ? "bg-background text-foreground"
-                : ""
-            }
-            onClick={() => handleTabChange("recommendations")}
+          </button>
+          <button
+            onClick={() => setActiveTab("recommendations")}
+            className={`px-3.5 py-1.5 rounded-[6px] text-[13px] font-medium transition-all cursor-pointer ${activeTab === "recommendations"
+                ? "bg-surface-2 text-ink border border-hairline font-semibold"
+                : "text-ink-subtle hover:text-ink border border-transparent"
+              }`}
           >
-            Recommendations
-          </TabsTrigger>
-        </TabsList>
+            Sample Issues
+          </button>
+        </div>
+      </div>
 
-        {/* Overview Tab */}
-        {activeTab === "overview" && (
-          <div className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Total Issues
-                  </CardTitle>
-                  <RocketIcon className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <Skeleton className="h-8 w-[100px]" />
-                  ) : (
-                    <div className="text-2xl font-bold">
-                      {repoStats?.total_issues || 0}
-                    </div>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    Good first issues available
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Top Languages
-                  </CardTitle>
-                  <CodeIcon className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <Skeleton className="h-8 w-[100px]" />
-                  ) : (
-                    <div className="flex flex-wrap gap-1">
-                      {repoStats?.language_distribution
-                        ? Object.keys(repoStats.language_distribution)
-                            .slice(0, 3)
-                            .map((lang) => (
-                              <Badge
-                                key={lang}
-                                variant="secondary"
-                                className="text-xs"
-                              >
-                                {lang}
-                              </Badge>
-                            ))
-                        : null}
-                    </div>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Most common languages
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Recommendations
-                  </CardTitle>
-                  <StarIcon className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <Skeleton className="h-8 w-[100px]" />
-                  ) : (
-                    <div className="text-2xl font-bold">
-                      {recommendations.length}
-                    </div>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    Personalized suggestions
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Cache Status
-                  </CardTitle>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={clearCache}
-                    >
-                      <ReloadIcon className="h-3 w-3" />
-                    </Button>
+      {/* Overview Tab */}
+      {activeTab === "overview" && (
+        <div className="space-y-6">
+          {/* Key Stat Cards */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Total Issues */}
+            <div className="linear-card p-5 relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-mono uppercase tracking-[0.4px] text-ink-subtle">
+                  Total Issues
+                </span>
+                <RocketIcon className="h-4 w-4 text-ink-tertiary" />
+              </div>
+              <div className="mt-3">
+                {loading ? (
+                  <Skeleton className="h-8 w-24" />
+                ) : (
+                  <div className="font-display text-[28px] font-semibold text-ink tracking-[-0.5px]">
+                    {repoStats?.total_issues || 0}
                   </div>
-                </CardHeader>
-                <CardContent>
-                  {cacheStats ? (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Hit Ratio</span>
-                        <span className="text-sm font-medium">
-                          {cacheStats.cache_hit_ratio}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2 mt-2 dark:bg-gray-700">
-                        <div
-                          className="bg-blue-600 h-2 rounded-full"
-                          style={{
-                            width:
-                              cacheStats.cache_hit_ratio.replace("%", "") + "%",
-                          }}
-                        ></div>
-                      </div>
-                    </>
-                  ) : (
-                    <Skeleton className="h-8 w-full" />
-                  )}
-                </CardContent>
-              </Card>
+                )}
+                <p className="text-[12px] text-ink-subtle mt-1">
+                  Good first issues retrieved
+                </p>
+              </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-              <Card className="col-span-4">
-                <CardHeader>
-                  <CardTitle>Language Distribution</CardTitle>
-                  <CardDescription>
-                    Distribution of good first issues by language
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pl-2">
-                  {loading ? (
-                    <Skeleton className="h-[300px] w-full" />
-                  ) : repoStats?.language_distribution ? (
-                    <div className="h-[300px] flex items-start overflow-y-auto">
-                      <div className="w-full">
-                        {prepareLanguageChartData().map(([language, count]) => (
-                          <div key={language} className="mb-2">
-                            <div className="flex justify-between items-center mb-1">
-                              <div className="flex items-center">
-                                <div
-                                  className="w-3 h-3 rounded-full mr-2"
-                                  style={{
-                                    backgroundColor:
-                                      getColorForLanguage(language),
-                                  }}
-                                ></div>
-                                <span className="text-sm">{language}</span>
-                              </div>
-                              <span className="text-sm font-medium">
-                                {count}
-                              </span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                              <div
-                                className="h-2 rounded-full"
-                                style={{
-                                  width: `${(count / repoStats.total_issues) * 100}%`,
-                                  backgroundColor:
-                                    getColorForLanguage(language),
-                                }}
-                              ></div>
-                            </div>
+            {/* Top Languages */}
+            <div className="linear-card p-5 relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-mono uppercase tracking-[0.4px] text-ink-subtle">
+                  Top Languages
+                </span>
+                <CodeIcon className="h-4 w-4 text-ink-tertiary" />
+              </div>
+              <div className="mt-3">
+                {loading ? (
+                  <Skeleton className="h-8 w-24" />
+                ) : (
+                  <div className="flex flex-wrap gap-1.5 py-1">
+                    {repoStats?.language_distribution
+                      ? Object.keys(repoStats.language_distribution)
+                        .slice(0, 3)
+                        .map((lang) => (
+                          <span
+                            key={lang}
+                            className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] bg-surface-2 border border-hairline text-ink-muted"
+                          >
+                            {lang}
+                          </span>
+                        ))
+                      : null}
+                  </div>
+                )}
+                <p className="text-[12px] text-ink-subtle mt-1">
+                  Most common languages
+                </p>
+              </div>
+            </div>
+
+            {/* Sample Issues */}
+            <div className="linear-card p-5 relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-mono uppercase tracking-[0.4px] text-ink-subtle">
+                  Sample Issues
+                </span>
+                <StarIcon className="h-4 w-4 text-ink-tertiary" />
+              </div>
+              <div className="mt-3">
+                {loading ? (
+                  <Skeleton className="h-8 w-24" />
+                ) : (
+                  <div className="font-display text-[28px] font-semibold text-ink tracking-[-0.5px]">
+                    {recommendations.length}
+                  </div>
+                )}
+                <p className="text-[12px] text-ink-subtle mt-1">
+                  Sample good first issues from the feed
+                </p>
+              </div>
+            </div>
+
+            {/* Cache Status */}
+            <div className="linear-card p-5 relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-mono uppercase tracking-[0.4px] text-ink-subtle">
+                  Cache Status
+                </span>
+                <button
+                  onClick={clearCache}
+                  className="h-6 w-6 inline-flex items-center justify-center rounded-[4px] text-ink-tertiary hover:text-ink hover:bg-surface-2 transition-colors cursor-pointer"
+                  title="Refresh cache"
+                >
+                  <ReloadIcon className="h-3 w-3" />
+                </button>
+              </div>
+              <div className="mt-3">
+                {cacheStats ? (
+                  <>
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-[12px] text-ink-subtle">Status</span>
+                      <span className="font-mono text-[13px] font-medium text-semantic-success">
+                        {cacheStats.status}
+                      </span>
+                    </div>
+                    <div className="flex items-baseline justify-between mt-2">
+                      <span className="text-[12px] text-ink-subtle">Cached Queries</span>
+                      <span className="font-mono text-[12px] text-ink-muted">
+                        {cacheStats.total_cache_entries} (TTL: {cacheStats.cache_duration_seconds}s)
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <Skeleton className="h-8 w-full" />
+                )}
+                <p className="text-[12px] text-ink-subtle mt-1">
+                  In-memory server cache
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Charts & Filter Grid */}
+          <div className="grid gap-6 lg:grid-cols-7">
+            {/* Language Distribution */}
+            <div className="linear-card p-6 lg:col-span-4 relative overflow-hidden space-y-4">
+              <div>
+                <h3 className="font-display text-[17px] font-semibold text-ink tracking-[-0.2px]">
+                  Language Distribution
+                </h3>
+                <p className="text-[13px] text-ink-subtle">
+                  Distribution of available good first issues by primary language
+                </p>
+              </div>
+
+              {loading ? (
+                <Skeleton className="h-[280px] w-full" />
+              ) : repoStats?.language_distribution ? (
+                <div className="h-[280px] overflow-y-auto pr-1 space-y-3">
+                  {prepareLanguageChartData().map(([lang, count]) => {
+                    const color = getColorForLanguage(lang);
+                    const pct = repoStats.total_issues > 0
+                      ? ((count / repoStats.total_issues) * 100).toFixed(1)
+                      : "0";
+                    return (
+                      <div key={lang} className="space-y-1">
+                        <div className="flex justify-between items-center text-[13px]">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: color }}
+                            />
+                            <span className="text-ink font-medium">{lang}</span>
                           </div>
-                        ))}
+                          <span className="font-mono text-[12px] text-ink-subtle">
+                            {count} issues ({pct}%)
+                          </span>
+                        </div>
+                        <div className="w-full bg-surface-3 rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-300"
+                            style={{
+                              width: `${pct}%`,
+                              backgroundColor: color,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-[240px] text-ink-subtle text-[13px]">
+                  No language distribution data available
+                </div>
+              )}
+            </div>
+
+            {/* Filter by Language */}
+            <div className="linear-card p-6 lg:col-span-3 relative overflow-hidden space-y-4">
+              <div>
+                <h3 className="font-display text-[17px] font-semibold text-ink tracking-[-0.2px]">
+                  Filter by Language
+                </h3>
+                <p className="text-[13px] text-ink-subtle">
+                  Filter statistics by programming language
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => handleLanguageChange("")}
+                  className={`px-3 py-1.5 rounded-[6px] text-[12px] font-mono transition-colors cursor-pointer ${language === ""
+                      ? "bg-surface-3 text-ink border border-primary/40 font-medium"
+                      : "bg-surface-1 hover:bg-surface-2 text-ink-subtle hover:text-ink border border-hairline"
+                    }`}
+                >
+                  All
+                </button>
+                {popularLanguages.map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => handleLanguageChange(lang)}
+                    className={`px-3 py-1.5 rounded-[6px] text-[12px] font-mono transition-colors cursor-pointer ${language === lang
+                        ? "bg-surface-3 text-ink border border-primary/40 font-medium"
+                        : "bg-surface-1 hover:bg-surface-2 text-ink-subtle hover:text-ink border border-hairline"
+                      }`}
+                  >
+                    {lang}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Repositories Tab */}
+      {activeTab === "repositories" && (
+        <div className="space-y-4">
+          {loading ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              {Array(4)
+                .fill(0)
+                .map((_, i) => (
+                  <div key={i} className="linear-card p-5 space-y-3">
+                    <Skeleton className="h-5 w-48" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-32" />
+                  </div>
+                ))}
+            </div>
+          ) : repoStats?.top_repositories && repoStats.top_repositories.length > 0 ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              {repoStats.top_repositories.map((repo, index) => (
+                <div key={index} className="linear-card p-5 space-y-3 relative overflow-hidden">
+                  <div className="flex items-center justify-between">
+                    <a
+                      href={`https://github.com/${repo.name}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-[14px] font-medium text-ink hover:text-primary transition-colors"
+                    >
+                      {repo.name}
+                    </a>
+                    <span
+                      className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] border border-hairline"
+                      style={{
+                        backgroundColor: getColorForLanguage(repo.language) + "15",
+                        color: getColorForLanguage(repo.language),
+                      }}
+                    >
+                      {repo.language}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-hairline text-[13px]">
+                    <div>
+                      <span className="text-[11px] font-mono uppercase text-ink-subtle block">
+                        Open Issues
+                      </span>
+                      <span className="font-mono font-medium text-ink">
+                        {repo.issue_count}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[11px] font-mono uppercase text-ink-subtle block">
+                        Stars
+                      </span>
+                      <div className="inline-flex items-center gap-1 font-mono font-medium text-ink">
+                        <StarIcon className="h-3.5 w-3.5 text-amber-400" />
+                        {repo.stars.toLocaleString()}
                       </div>
                     </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-[300px]">
-                      <p className="text-muted-foreground">
-                        No language data available
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="linear-card p-8 text-center">
+              <p className="text-[14px] text-ink-subtle">No repository data available.</p>
+            </div>
+          )}
+        </div>
+      )}
 
-              <Card className="col-span-3">
-                <CardHeader>
-                  <CardTitle>Filter by Language</CardTitle>
-                  <CardDescription>
-                    Select a language to filter analytics
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant={language === "" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => handleLanguageChange("")}
+      {/* Recommendations Tab */}
+      {activeTab === "recommendations" && (
+        <div className="space-y-4">
+          {loading ? (
+            <div className="space-y-4">
+              {Array(3)
+                .fill(0)
+                .map((_, i) => (
+                  <div key={i} className="linear-card p-5 space-y-3">
+                    <Skeleton className="h-5 w-64" />
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-4 w-40" />
+                  </div>
+                ))}
+            </div>
+          ) : recommendations.length > 0 ? (
+            <div className="space-y-3">
+              {recommendations.map((rec, index) => (
+                <div key={index} className="linear-card p-5 space-y-2.5 relative overflow-hidden">
+                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+                    <a
+                      href={rec.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-[15px] text-ink hover:text-primary transition-colors line-clamp-1"
                     >
-                      All
-                    </Button>
+                      {rec.title}
+                    </a>
+                    <span className="font-mono text-[11px] text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-[4px] flex-shrink-0 self-start">
+                      {rec.reason}
+                    </span>
+                  </div>
 
-                    {popularLanguages.map((lang) => (
-                      <Button
-                        key={lang}
-                        variant={language === lang ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleLanguageChange(lang)}
+                  <p className="font-mono text-[12px] text-ink-subtle">
+                    {typeof rec.repository === "string"
+                      ? rec.repository
+                      : rec.repository?.join("/")}
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    {rec.labels.map((label) => (
+                      <span
+                        key={label}
+                        className="font-mono text-[11px] px-2 py-0.5 rounded-[4px] bg-surface-2 border border-hairline text-ink-muted"
                       >
-                        {lang}
-                      </Button>
+                        {label}
+                      </span>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
+
+                  <div className="pt-2 border-t border-hairline text-[11px] font-mono text-ink-subtle">
+                    {rec.created_at && !isNaN(new Date(rec.created_at).getTime())
+                      ? `Created on ${new Date(rec.created_at).toISOString().split("T")[0]}`
+                      : "Recently created"}
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-        )}
-
-        {/* Repositories Tab */}
-        {activeTab === "repositories" && (
-          <div className="space-y-4">
-            {loading ? (
-              <div className="grid gap-4 md:grid-cols-2">
-                {Array(4)
-                  .fill(0)
-                  .map((_, i) => (
-                    <Card key={i}>
-                      <CardHeader className="pb-2">
-                        <Skeleton className="h-5 w-[250px]" />
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        <Skeleton className="h-4 w-[200px]" />
-                        <Skeleton className="h-4 w-[150px]" />
-                        <Skeleton className="h-4 w-[180px]" />
-                      </CardContent>
-                    </Card>
-                  ))}
-              </div>
-            ) : repoStats?.top_repositories &&
-              repoStats.top_repositories.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
-                {repoStats.top_repositories.map((repo, index) => (
-                  <Card key={index}>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-md font-medium">
-                        <a
-                          href={`https://github.com/${repo.name}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 dark:text-blue-400 hover:underline"
-                        >
-                          {repo.name}
-                        </a>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          Open Issues
-                        </span>
-                        <Badge variant="outline">{repo.issue_count}</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          Stars
-                        </span>
-                        <div className="flex items-center">
-                          <StarIcon className="h-3.5 w-3.5 mr-1 text-yellow-400" />
-                          <span>{repo.stars.toLocaleString()}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          Main Language
-                        </span>
-                        <Badge
-                          variant="secondary"
-                          style={{
-                            backgroundColor:
-                              getColorForLanguage(repo.language) + "30",
-                            color: getColorForLanguage(repo.language),
-                          }}
-                        >
-                          {repo.language}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <p className="text-muted-foreground">
-                    No repository data available
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
-
-        {/* Recommendations Tab */}
-        {activeTab === "recommendations" && (
-          <div className="space-y-4">
-            {loading ? (
-              <div className="space-y-4">
-                {Array(3)
-                  .fill(0)
-                  .map((_, i) => (
-                    <Card key={i}>
-                      <CardHeader className="pb-2">
-                        <Skeleton className="h-5 w-[350px]" />
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        <Skeleton className="h-4 w-[300px]" />
-                        <div className="flex gap-2">
-                          <Skeleton className="h-6 w-[80px] rounded-full" />
-                          <Skeleton className="h-6 w-[90px] rounded-full" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </div>
-            ) : recommendations.length > 0 ? (
-              <div className="space-y-4">
-                {recommendations.map((rec, index) => (
-                  <Card key={index}>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-md font-medium">
-                        <a
-                          href={rec.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 dark:text-blue-400 hover:underline"
-                        >
-                          {rec.title}
-                        </a>
-                      </CardTitle>
-                      <CardDescription>
-                        {typeof rec.repository === "string"
-                          ? rec.repository
-                          : rec.repository?.join("/")}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      <div className="flex flex-wrap gap-1">
-                        {rec.labels.map((label) => (
-                          <Badge key={label} variant="outline">
-                            {label}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          Created:{" "}
-                          {new Date(rec.created_at).toISOString().split("T")[0]}
-                        </span>
-                        <Badge variant="secondary">{rec.reason}</Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <p className="text-muted-foreground">
-                    No recommendations available
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="mt-4"
-                    onClick={fetchRecommendations}
-                  >
-                    <ReloadIcon className="mr-2 h-4 w-4" />
-                    Refresh Recommendations
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
-      </Tabs>
+          ) : (
+            <div className="linear-card p-8 text-center space-y-4">
+              <p className="text-[14px] text-ink-subtle">No sample issues currently available.</p>
+              <Button
+                variant="outline"
+                onClick={() => fetchRecommendations(true)}
+                className="gap-2 text-[13px] h-9 cursor-pointer"
+              >
+                <ReloadIcon className="h-3.5 w-3.5" />
+                Refresh Sample Issues
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default AnalyticsDashboard
+export default AnalyticsDashboard;

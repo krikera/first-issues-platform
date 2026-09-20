@@ -6,7 +6,7 @@ We support security fixes on the `main` branch. Please use the latest release.
 
 ## Reporting a Vulnerability
 
-- **Email**: security@your-domain.com
+- **Email**: [EMAIL_ADDRESS]
 - Do not open public issues for vulnerabilities.
 - Provide a clear description, reproduction steps, affected versions, and impact.
 - We aim to acknowledge receipt within 3 business days and provide a remediation timeline.
@@ -33,8 +33,8 @@ This document outlines the security measures implemented in the First Issues app
 ### 3. Rate Limiting & Abuse Prevention
 
 - **Server Rate Limiting (`src/lib/rate-limiter.ts`)**:
-  - Per-IP rate limiting on key endpoints to prevent automated abuse.
-  - Returns standard HTTP 429 Too Many Requests response headers.
+  - In-memory per-IP rate limiting on key authentication endpoints (`/api/auth/login`, `/api/auth/register`) to prevent brute-force attacks.
+  - Returns HTTP 429 Too Many Requests response status when limits are exceeded.
 
 ### 4. Security Headers & HSTS
 
@@ -48,9 +48,9 @@ Configured in `next.config.ts`:
 { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains; preload" }
 ```
 
-### 5. Dependency Scanning
+### 5. Dependency Auditing
 
-- Automated dependency security scanning via GitHub Dependabot and CodeQL workflows.
+- Periodic dependency vulnerability audits via `npm audit` and package integrity validation.
 
 ## Pre-Deployment Security Checklist
 

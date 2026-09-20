@@ -1,9 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation"
-
-import type { Issue } from "@/types"
-
 interface QuickFiltersProps {
   filters: {
     minStars: string
@@ -32,71 +28,20 @@ interface QuickFiltersProps {
     dateFrom: string
     dateTo: string
     searchQuery: string
-    onlyAssigned: boolean
-    hasIssues: boolean
-    recentlyActive: boolean
   }) => void
-  setIssues: (issues: Issue[]) => void
-  setIsSearching: (searching: boolean) => void
 }
 
 export function QuickFilters({
   filters,
   searchQuery,
   onFilterChange,
-  setIssues,
-  setIsSearching,
 }: QuickFiltersProps) {
-  const router = useRouter()
-
-  const handleQuickFilter = (filterUpdate: Partial<typeof filters>) => {
-    setIssues([])
-    setIsSearching(true)
-
-    const formData = new FormData()
-    formData.set("minStars", filterUpdate.minStars || filters.minStars)
-    formData.set("maxStars", filterUpdate.maxStars || filters.maxStars)
-    formData.set("minForks", filterUpdate.minForks || filters.minForks)
-    formData.set(
-      "language",
-      (filterUpdate.language || filters.language).join(" ")
-    )
-    formData.set(
-      "isAssigned",
-      (filterUpdate.isAssigned ?? filters.isAssigned).toString()
-    )
-    formData.set("category", filterUpdate.category || filters.category)
-    formData.set("framework", filterUpdate.framework || filters.framework)
-    formData.set(
-      "hasPullRequests",
-      (filterUpdate.hasPullRequests ?? filters.hasPullRequests).toString()
-    )
-    formData.set(
-      "showBookmarked",
-      (filterUpdate.showBookmarked ?? filters.showBookmarked).toString()
-    )
-    formData.set("searchQuery", searchQuery)
-    formData.set("dateFrom", filterUpdate.dateFrom || filters.dateFrom)
-    formData.set("dateTo", filterUpdate.dateTo || filters.dateTo)
-
-    const params = new URLSearchParams()
-    for (const [key, value] of formData.entries()) {
-      if (typeof value === "string") params.set(key, value)
-    }
-    router.push(`/?${params.toString()}`)
-  }
-
   const toggleBookmarked = () => {
-    const newBookmarkState = !filters.showBookmarked
     onFilterChange({
       ...filters,
-      showBookmarked: newBookmarkState,
+      showBookmarked: !filters.showBookmarked,
       searchQuery,
-      onlyAssigned: filters.isAssigned,
-      hasIssues: true,
-      recentlyActive: false,
     })
-    handleQuickFilter({ showBookmarked: newBookmarkState })
   }
 
   const toggleCategory = () => {
@@ -106,11 +51,7 @@ export function QuickFilters({
       ...filters,
       category: newCategory,
       searchQuery,
-      onlyAssigned: filters.isAssigned,
-      hasIssues: true,
-      recentlyActive: false,
     })
-    handleQuickFilter({ category: newCategory })
   }
 
   const togglePullRequests = () => {
@@ -119,11 +60,7 @@ export function QuickFilters({
       ...filters,
       hasPullRequests: newPullRequestsState,
       searchQuery,
-      onlyAssigned: filters.isAssigned,
-      hasIssues: true,
-      recentlyActive: false,
     })
-    handleQuickFilter({ hasPullRequests: newPullRequestsState })
   }
 
   const toggleLanguage = (lang: string) => {
@@ -137,27 +74,23 @@ export function QuickFilters({
       ...filters,
       language: newLanguages,
       searchQuery,
-      onlyAssigned: filters.isAssigned,
-      hasIssues: true,
-      recentlyActive: false,
     })
-    handleQuickFilter({ language: newLanguages })
   }
 
   return (
     <div className="sticky top-24">
-      <nav className="bg-card border rounded-lg p-4 space-y-5">
+      <nav className="bg-surface-1 border border-hairline rounded-[12px] p-3.5 space-y-4">
         {/* Quick Filters */}
         <div>
-          <h4 className="px-2 text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
+          <h4 className="px-2 text-[11px] font-medium text-ink-subtle mb-2 uppercase tracking-[0.4px]">
             Quick Filters
           </h4>
-          <div className="space-y-0.5">
+          <div className="space-y-1">
             <button
-              className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`w-full text-left px-2.5 py-1.5 rounded-[6px] text-[13px] font-medium transition-all duration-150 cursor-pointer ${
                 filters.showBookmarked
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-surface-2 text-ink border border-hairline-strong font-medium"
+                  : "text-ink-subtle hover:bg-surface-2 hover:text-ink"
               }`}
               onClick={(e) => {
                 e.preventDefault()
@@ -169,10 +102,10 @@ export function QuickFilters({
             </button>
 
             <button
-              className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`w-full text-left px-2.5 py-1.5 rounded-[6px] text-[13px] font-medium transition-all duration-150 cursor-pointer ${
                 filters.category === "good-first-issue"
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-surface-2 text-ink border border-hairline-strong font-medium"
+                  : "text-ink-subtle hover:bg-surface-2 hover:text-ink"
               }`}
               onClick={(e) => {
                 e.preventDefault()
@@ -184,10 +117,10 @@ export function QuickFilters({
             </button>
 
             <button
-              className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`w-full text-left px-2.5 py-1.5 rounded-[6px] text-[13px] font-medium transition-all duration-150 cursor-pointer ${
                 filters.hasPullRequests
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-surface-2 text-ink border border-hairline-strong font-medium"
+                  : "text-ink-subtle hover:bg-surface-2 hover:text-ink"
               }`}
               onClick={(e) => {
                 e.preventDefault()
@@ -200,22 +133,22 @@ export function QuickFilters({
           </div>
         </div>
 
-        <hr className="border-border" />
+        <div className="border-t border-hairline" />
 
         {/* Languages */}
         <div>
-          <h4 className="px-2 text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
+          <h4 className="px-2 text-[11px] font-medium text-ink-subtle mb-2 uppercase tracking-[0.4px]">
             Languages
           </h4>
-          <div className="space-y-0.5">
+          <div className="space-y-1">
             {["JavaScript", "Python", "TypeScript", "Java", "Go", "Rust"].map(
               (lang) => (
                 <button
                   key={lang}
-                  className={`w-full text-left px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  className={`w-full text-left px-2.5 py-1.5 rounded-[6px] text-[13px] transition-all duration-150 cursor-pointer ${
                     filters.language.includes(lang)
-                      ? "bg-primary/10 text-primary font-semibold"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ? "bg-surface-2 text-primary-hover border border-primary/20 font-medium"
+                      : "text-ink-subtle hover:bg-surface-2 hover:text-ink"
                   }`}
                   onClick={(e) => {
                     e.preventDefault()

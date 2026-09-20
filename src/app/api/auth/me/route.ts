@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     if (!userId) throw new AuthenticationError();
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new AuthenticationError("User not found");
+    if (!user || !user.isActive) throw new AuthenticationError("User not found or account is deactivated");
 
     return NextResponse.json({
       user: {
@@ -36,6 +36,11 @@ export async function PUT(request: Request) {
     const userId = await getAuthenticatedUserId(request);
     if (!userId) throw new AuthenticationError();
 
+    const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!existingUser || !existingUser.isActive) {
+      throw new AuthenticationError("User not found or account is deactivated");
+    }
+
     const body = await request.json();
     const { full_name, bio, avatar_url } = body;
 
@@ -45,6 +50,21 @@ export async function PUT(request: Request) {
     }
     if (bio && bio.length > 500) {
       throw new ValidationError("Bio must be less than 500 characters");
+    }
+    if (avatar_url) {
+      if (typeof avatar_url !== "string" || avatar_url.length > 500) {
+        throw new ValidationError("Invalid avatar URL format");
+      }
+      try {
+        const parsed = new URL(avatar_url);
+        if (!["http:", "https:"].includes(parsed.protocol)) {
+          throw new ValidationError("Avatar URL must use http or https");
+        }
+      } catch {
+        if (!avatar_url.startsWith("/")) {
+          throw new ValidationError("Invalid avatar URL");
+        }
+      }
     }
 
     const updated = await prisma.user.update({

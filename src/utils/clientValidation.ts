@@ -2,7 +2,7 @@
  * Client-side input validation and sanitization utilities
  */
 
-export const sanitizeSearchInput = (input: string): string => {
+export const sanitizeSearchInput = (input: string, trim = false): string => {
   if (!input || typeof input !== "string") return "";
   let sanitized = input.slice(0, 200);
   sanitized = sanitized.replace(
@@ -10,17 +10,25 @@ export const sanitizeSearchInput = (input: string): string => {
     ""
   );
   sanitized = sanitized.replace(/<[^>]*>/g, "");
-  sanitized = sanitized.replace(/\s+/g, " ").trim();
+  if (trim) {
+    sanitized = sanitized.replace(/\s+/g, " ").trim();
+  }
   return sanitized;
 };
 
 export const validateNumericInput = (
   value: string,
   min: number = 0,
-  max: number = Number.MAX_SAFE_INTEGER
+  max: number = Number.MAX_SAFE_INTEGER,
+  defaultValue?: number
 ): number => {
+  if (value === "" || value === undefined || value === null) {
+    return defaultValue !== undefined ? defaultValue : min;
+  }
   const parsed = parseInt(value, 10);
-  if (isNaN(parsed) || parsed < min || parsed > max) return min;
+  if (isNaN(parsed) || parsed < min || parsed > max) {
+    return defaultValue !== undefined ? defaultValue : min;
+  }
   return parsed;
 };
 
@@ -41,9 +49,13 @@ export const sanitizeFormData = (formData: FormData): FormData => {
           sanitized.set(key, sanitizeSearchInput(value));
           break;
         case "minStars":
-        case "maxStars":
         case "minForks": {
-          const numValue = validateNumericInput(value, 0, 10000000);
+          const numValue = validateNumericInput(value, 0, 10000000, 0);
+          sanitized.set(key, numValue.toString());
+          break;
+        }
+        case "maxStars": {
+          const numValue = validateNumericInput(value, 0, 10000000, 10000000);
           sanitized.set(key, numValue.toString());
           break;
         }

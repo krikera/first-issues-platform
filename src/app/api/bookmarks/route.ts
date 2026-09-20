@@ -53,6 +53,20 @@ export async function GET(request: Request) {
   }
 }
 
+function isValidIssueUrl(url: string | null | undefined): boolean {
+  if (!url) return true;
+  if (typeof url !== "string" || url.length > 500) return false;
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.protocol === "https:" &&
+      (parsed.hostname === "github.com" || parsed.hostname === "www.github.com")
+    );
+  } catch {
+    return false;
+  }
+}
+
 // POST /api/bookmarks — create bookmark
 export async function POST(request: Request) {
   try {
@@ -60,25 +74,40 @@ export async function POST(request: Request) {
     if (!userId) throw new AuthenticationError();
 
     const body = await request.json();
-    const { issue_id, issue_url, issue_title, repository_name, notes, tags } = body;
+    const { issue_id, issue_url, issue_title, repository_name, issue_state, issue_labels, notes, tags } = body;
 
     if (!issue_id) throw new ValidationError("issue_id is required");
+    if (issue_url && !isValidIssueUrl(issue_url)) {
+      throw new ValidationError("Invalid issue_url. Must be a valid https://github.com URL.");
+    }
 
-    // Parse issue_id format: owner/repo#number
+    // Parse issue_id format: owner/repo#number or URL
     let repoOwner = "", repoName = "", issueNumber = 0;
-    const match = issue_id.match(/^([^/]+)\/([^#]+)#(\d+)$/);
-    if (match) {
-      repoOwner = match[1];
-      repoName = match[2];
-      issueNumber = parseInt(match[3], 10);
+    const matchHash = issue_id.match(/^([^/]+)\/([^#]+)#(\d+)$/);
+    const matchUrl = (issue_url || issue_id).match(/github\.com\/([^/]+)\/([^/]+)\/issues\/(\d+)/);
+
+    if (matchHash) {
+      repoOwner = matchHash[1];
+      repoName = matchHash[2];
+      issueNumber = parseInt(matchHash[3], 10);
+    } else if (matchUrl) {
+      repoOwner = matchUrl[1];
+      repoName = matchUrl[2];
+      issueNumber = parseInt(matchUrl[3], 10);
     } else {
       repoOwner = repository_name?.split("/")[0] || "unknown";
       repoName = repository_name?.split("/")[1] || "unknown";
     }
 
+    // Standardize issue_id format to owner/repo#number if repoOwner and issueNumber known
+    const standardizedIssueId =
+      repoOwner !== "unknown" && repoName !== "unknown" && issueNumber > 0
+        ? `${repoOwner}/${repoName}#${issueNumber}`
+        : issue_id;
+
     // Check for duplicate
     const existing = await prisma.bookmark.findFirst({
-      where: { userId, issueId: issue_id },
+      where: { userId, issueId: standardizedIssueId },
     });
     if (existing) {
       return NextResponse.json({ bookmark: formatBookmark(existing) });
@@ -87,12 +116,14 @@ export async function POST(request: Request) {
     const bookmark = await prisma.bookmark.create({
       data: {
         userId,
-        issueId: issue_id,
+        issueId: standardizedIssueId,
         issueNumber,
         repoOwner,
         repoName,
         issueTitle: issue_title || null,
-        issueUrl: issue_url || null,
+        issueState: issue_state || "open",
+        issueUrl: issue_url || (issueNumber > 0 ? `https://github.com/${repoOwner}/${repoName}/issues/${issueNumber}` : null),
+        issueLabels: issue_labels || [],
         notes: notes || null,
         tags: tags || [],
       },

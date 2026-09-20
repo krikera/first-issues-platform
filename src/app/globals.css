@@ -1,192 +1,327 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
 
-/* Self-hosted Inter font with font-display: swap for optimal LCP */
+@theme {
+  --color-canvas: var(--color-canvas);
+  --color-surface-1: var(--color-surface-1);
+  --color-surface-2: var(--color-surface-2);
+  --color-surface-3: var(--color-surface-3);
+  --color-surface-4: var(--color-surface-4);
+
+  --color-hairline: var(--color-hairline);
+  --color-hairline-strong: var(--color-hairline-strong);
+  --color-hairline-tertiary: var(--color-hairline-tertiary);
+
+  --color-primary: var(--color-primary);
+  --color-on-primary: var(--color-on-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-focus: var(--color-primary-focus);
+  --color-brand-secure: var(--color-brand-secure);
+
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-ink-subtle: var(--color-ink-subtle);
+  --color-ink-tertiary: var(--color-ink-tertiary);
+
+  --color-semantic-success: var(--color-semantic-success);
+  --color-semantic-overlay: var(--color-semantic-overlay);
+
+  /* UI Primitives Compatibility Aliases */
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-card: var(--color-card);
+  --color-card-foreground: var(--color-card-foreground);
+  --color-popover: var(--color-popover);
+  --color-popover-foreground: var(--color-popover-foreground);
+  --color-border: var(--color-border);
+  --color-input: var(--color-input);
+  --color-ring: var(--color-ring);
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-destructive: var(--color-destructive);
+  --color-destructive-foreground: var(--color-destructive-foreground);
+
+  /* Typography Stacks */
+  --font-display: "Linear Display", "SF Pro Display", -apple-system, system-ui, "Segoe UI", Roboto, "Inter", sans-serif;
+  --font-text: "Linear Text", "SF Pro Text", -apple-system, system-ui, "Segoe UI", Roboto, "Inter", sans-serif;
+  --font-mono: "Linear Mono", ui-monospace, "SF Mono", Menlo, "JetBrains Mono", monospace;
+
+  /* Border Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-xxl: 24px;
+  --radius-pill: 9999px;
+
+  /* Spacing */
+  --spacing-section: 96px;
+
+  /* Linear Negative/Positive Tracking */
+  --tracking-display-xl: -3.0px;
+  --tracking-display-lg: -1.8px;
+  --tracking-display-md: -1.0px;
+  --tracking-headline: -0.6px;
+  --tracking-card-title: -0.4px;
+  --tracking-subhead: -0.2px;
+  --tracking-body-lg: -0.1px;
+  --tracking-body: -0.05px;
+  --tracking-eyebrow: 0.4px;
+}
+
+/* Self-hosted Inter font fallbacks for cross-platform rendering */
 @font-face {
-  font-family: "Inter";
+  font-family: "Linear Display";
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: local("SF Pro Display"), url("/fonts/inter-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Linear Text";
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: local("SF Pro Text"), url("/fonts/inter-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Linear Mono";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("/fonts/inter-latin-400-normal.woff2") format("woff2");
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  src: local("SF Mono"), local("Menlo"), local("JetBrains Mono");
 }
 
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("/fonts/inter-latin-500-normal.woff2") format("woff2");
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+:root {
+  --radius: 8px;
+
+  /* DESIGN.md Dark Palette (Default) */
+  --color-canvas: #010102;
+  --color-surface-1: #0f1011;
+  --color-surface-2: #141516;
+  --color-surface-3: #18191a;
+  --color-surface-4: #191a1b;
+
+  --color-hairline: #23252a;
+  --color-hairline-strong: #34343a;
+  --color-hairline-tertiary: #3e3e44;
+
+  --color-primary: #5e6ad2;
+  --color-on-primary: #ffffff;
+  --color-primary-hover: #828fff;
+  --color-primary-focus: #5e69d1;
+  --color-brand-secure: #7a7fad;
+
+  --color-ink: #f7f8f8;
+  --color-ink-muted: #d0d6e0;
+  --color-ink-subtle: #8a8f98;
+  --color-ink-tertiary: #62666d;
+
+  --color-semantic-success: #27a644;
+  --color-semantic-overlay: #000000;
+
+  --color-background: #010102;
+  --color-foreground: #f7f8f8;
+  --color-card: #0f1011;
+  --color-card-foreground: #f7f8f8;
+  --color-popover: #18191a;
+  --color-popover-foreground: #f7f8f8;
+  --color-border: #23252a;
+  --color-input: #0f1011;
+  --color-ring: #5e69d1;
+  --color-muted: #141516;
+  --color-muted-foreground: #8a8f98;
+  --color-accent: #141516;
+  --color-accent-foreground: #f7f8f8;
+  --color-destructive: #e5484d;
+  --color-destructive-foreground: #ffffff;
 }
 
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("/fonts/inter-latin-600-normal.woff2") format("woff2");
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
-}
+.light {
+  /* DESIGN.md Inverse Tokens for Light Mode */
+  --color-canvas: #ffffff;
+  --color-surface-1: #f5f6f6;
+  --color-surface-2: #f6f7f7;
+  --color-surface-3: #edeeee;
+  --color-surface-4: #e5e6e7;
 
-@font-face {
-  font-family: "Inter";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("/fonts/inter-latin-700-normal.woff2") format("woff2");
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
-}
+  --color-hairline: #e4e6ea;
+  --color-hairline-strong: #cfd3d8;
+  --color-hairline-tertiary: #b8bdc4;
 
-@font-face {
-  font-family: "Inter-fallback";
-  src: local("Arial");
-  ascent-override: 90%;
-  descent-override: 22.43%;
-  line-gap-override: 0%;
-  size-adjust: 107.64%;
-}
+  --color-ink: #000000;
+  --color-ink-muted: #3c4048;
+  --color-ink-subtle: #62666d;
+  --color-ink-tertiary: #8a8f98;
 
-@layer base {
-  :root {
-    --background: 220 14% 10%;
-    --foreground: 210 10% 93%;
-    --card: 220 14% 12%;
-    --card-foreground: 210 10% 93%;
-    --popover: 220 14% 12%;
-    --popover-foreground: 210 10% 93%;
-    --primary: 217 92% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 250 50% 60%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 215 14% 18%;
-    --muted-foreground: 215 15% 65%;
-    --accent: 142 70% 45%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 215 14% 22%;
-    --input: 215 14% 16%;
-    --ring: 217 92% 60%;
-    --radius: 0.5rem;
-  }
-
-  .light {
-    --background: 0 0% 100%;
-    --foreground: 224 10% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 224 10% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 10% 10%;
-    --primary: 217 92% 50%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 250 40% 50%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 220 15% 95%;
-    --muted-foreground: 220 10% 40%;
-    --accent: 142 70% 40%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 87%;
-    --input: 220 13% 91%;
-    --ring: 217 92% 50%;
-  }
+  --color-background: #ffffff;
+  --color-foreground: #000000;
+  --color-card: #f5f6f6;
+  --color-card-foreground: #000000;
+  --color-popover: #f6f7f7;
+  --color-popover-foreground: #000000;
+  --color-border: #e4e6ea;
+  --color-input: #f5f6f6;
+  --color-ring: #5e69d1;
+  --color-muted: #f5f6f6;
+  --color-muted-foreground: #62666d;
+  --color-accent: #f6f7f7;
+  --color-accent-foreground: #000000;
+  --color-destructive: #e5484d;
+  --color-destructive-foreground: #ffffff;
+  --color-brand-secure: #5e6ad2;
+  --color-semantic-success: #27a644;
+  --color-semantic-overlay: #ffffff;
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--color-hairline);
+  }
+
+  html {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    color-scheme: dark;
+  }
+
+  html.light {
+    color-scheme: light;
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-family:
-      "Inter",
-      "Inter-fallback",
-      system-ui,
-      -apple-system,
-      sans-serif;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-text);
+    letter-spacing: -0.05px;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight;
+    font-family: var(--font-display);
+    color: var(--color-ink);
   }
 
   code, pre, kbd {
-    font-family: "Courier New", "Lucida Console", monospace;
+    font-family: var(--font-mono);
+  }
+
+  ::selection {
+    background-color: rgba(94, 106, 210, 0.35);
+    color: #ffffff;
   }
 }
 
-@layer components {
-  .cyber-card {
-    @apply relative overflow-hidden bg-card rounded-lg;
-    border: 1px solid hsl(var(--border));
-    box-shadow:
-      0 1px 3px 0 rgb(0 0 0 / 0.1),
-      0 1px 2px -1px rgb(0 0 0 / 0.1);
-  }
+/* Linear Utilities per Tailwind v4 (@utility) */
+@utility linear-card {
+  background-color: var(--color-surface-1);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 
-  .cyber-card:hover {
-    border-color: hsl(var(--primary) / 0.3);
-    box-shadow:
-      0 4px 6px -1px rgb(0 0 0 / 0.1),
-      0 2px 4px -2px rgb(0 0 0 / 0.1);
-  }
-
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: hsl(var(--background));
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.3);
-    border-radius: 4px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.5);
+  &:hover {
+    border-color: var(--color-hairline-strong);
+    background-color: var(--color-surface-2);
   }
 }
 
-@layer utilities {
-  .custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground) / 0.3) hsl(var(--background));
+@utility linear-panel {
+  background-color: var(--color-surface-1);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-xl);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08) 50%, transparent);
+    pointer-events: none;
+  }
+}
+
+@utility btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-family: var(--font-text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  transition: background-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: var(--color-primary-hover);
   }
 
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
+  &:active {
+    background-color: var(--color-primary-focus);
   }
+}
 
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: hsl(var(--background));
-    border-radius: 4px;
-  }
+@utility btn-secondary {
+  background-color: var(--color-surface-1);
+  color: var(--color-ink);
+  border: 1px solid var(--color-hairline);
+  font-family: var(--font-text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.3);
-    border-radius: 4px;
+  &:hover {
+    background-color: var(--color-surface-2);
+    border-color: var(--color-hairline-strong);
   }
+}
 
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.5);
-  }
+@utility status-pill {
+  background-color: var(--color-surface-2);
+  color: var(--color-ink-muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-hairline);
+}
+
+/* Scrollbar on canvas */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-hairline-strong);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-tertiary);
 }

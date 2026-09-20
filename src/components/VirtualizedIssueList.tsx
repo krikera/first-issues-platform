@@ -6,15 +6,7 @@ import { FixedSizeList as List } from "react-window"
 import { IssueCard } from "@/components/IssueCard"
 import { IssueCardSkeleton } from "@/components/ui/loading"
 import type { Issue } from "@/types"
-
-interface BookmarkData {
-  issue_id: string
-  issue_url: string
-  issue_title: string
-  repository_name: string
-  notes?: string
-  tags?: string[]
-}
+import type { BookmarkData } from "@/contexts/BookmarkContext"
 
 interface VirtualizedIssueListProps {
   issues: Issue[]
@@ -28,21 +20,20 @@ interface VirtualizedIssueListProps {
 
 // Error fallback component
 const ErrorFallback = memo(({ retry }: { retry?: () => void }) => (
-  <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6">
-    <div className="flex items-center gap-3 mb-3">
-      <div className="w-3 h-3 bg-destructive rounded-full" />
-      <span className="text-destructive font-semibold">
-        Error Rendering Issue
+  <div className="linear-card border-destructive/30 bg-destructive/10 p-5">
+    <div className="flex items-center gap-2.5 mb-2">
+      <div className="w-2 h-2 bg-destructive-foreground rounded-full" />
+      <span className="text-destructive-foreground font-medium text-[13px]">
+        Issue Render Notice
       </span>
     </div>
-    <p className="text-sm text-destructive/80 mb-4">
-      An error occurred while rendering the issue list. This could be due to
-      unexpected data format or a rendering problem.
+    <p className="text-[12px] text-ink-subtle mb-3">
+      An error occurred while rendering this issue row due to unexpected payload format.
     </p>
     {retry ? (
       <button
         onClick={retry}
-        className="px-4 py-2 rounded-md bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm font-medium transition-colors"
+        className="px-3 py-1 rounded-[6px] bg-destructive/20 text-destructive-foreground hover:bg-destructive/30 text-[12px] font-medium transition-colors cursor-pointer"
       >
         Retry
       </button>
@@ -112,7 +103,6 @@ const IssueRow = memo(
       )
     }
 
-    // Try to render the issue card with error boundary
     try {
       return (
         <div style={style}>
@@ -134,15 +124,11 @@ const IssueRow = memo(
           </div>
         </div>
       )
-    } catch (error) {
-      // Log error but don't crash the entire list
-      console.error(`Error rendering issue at index ${index}:`, error)
-      setHasError(true)
-      onError(error instanceof Error ? error : new Error(String(error)), index)
-
+    } catch (err) {
+      onError(err as Error, index)
       return (
         <div style={style}>
-          <div className="px-1 pb-8 mt-2">
+          <div className="px-1 pb-4">
             <ErrorFallback retry={() => setHasError(false)} />
           </div>
         </div>
@@ -171,8 +157,8 @@ export const VirtualizedIssueList = memo(
     // Calculate total items (issues + loading skeletons)
     const totalItems = isLoading ? issues.length + loadingCount : issues.length
 
-    // Estimated height per issue card - reduced for compact design
-    const ITEM_HEIGHT = 200
+    // Calibrated height per issue card (175px card + 20px padding)
+    const ITEM_HEIGHT = 195
 
     // Calculate container height (max 80vh to prevent excessive height)
     const containerHeight = Math.min(
@@ -253,22 +239,22 @@ export const VirtualizedIssueList = memo(
       return (
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
-            {issues.map((issue: Issue, index) => {
-              try {
-                return (
-                  <IssueCard
-                    key={issue.id}
-                    issue={issue}
-                    showPullRequests={showPullRequests}
-                    isBookmarked={isBookmarked(issue.id)}
-                    onToggleBookmark={() => onToggleBookmark(issue.id)}
-                  />
-                )
-              } catch (error) {
-                console.error(`Error rendering issue at index ${index}:`, error)
-                return <ErrorFallback key={`error-${index}`} />
-              }
-            })}
+            {issues.map((issue: Issue) => (
+              <IssueCard
+                key={issue.id}
+                issue={issue}
+                showPullRequests={showPullRequests}
+                isBookmarked={isBookmarked(issue.id)}
+                onToggleBookmark={() =>
+                  onToggleBookmark(issue.id, {
+                    issue_id: issue.id,
+                    issue_url: issue.html_url,
+                    issue_title: issue.title,
+                    repository_name: issue.repository_name,
+                  })
+                }
+              />
+            ))}
             {isLoading
               ? Array.from({ length: loadingCount }, (_, i) => (
                   <IssueCardSkeleton key={`skeleton-${i}`} />
@@ -283,12 +269,12 @@ export const VirtualizedIssueList = memo(
       <div className="space-y-6">
         {/* Results counter */}
         {issues.length > 0 && (
-          <div className="bg-card border rounded-lg px-4 py-3 flex items-center justify-between">
-            <span className="text-sm font-medium text-foreground">
+          <div className="linear-card px-4 py-2.5 flex items-center justify-between">
+            <span className="text-[13px] font-mono text-ink">
               {issues.length} {issues.length === 1 ? "issue" : "issues"} found
             </span>
             {errorCount > 0 && (
-              <span className="text-sm text-destructive">
+              <span className="text-[12px] font-mono text-destructive-foreground">
                 {errorCount} failed to load
               </span>
             )}

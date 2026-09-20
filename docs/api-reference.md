@@ -18,7 +18,7 @@ All protected endpoints require a JWT token in the header:
 Authorization: Bearer <access_token>
 ```
 
-The application uses Axios interceptors to automatically handle token refreshing when encountering a `401 Unauthorized` response.
+The application's authentication service (`AuthContext`) utilizes Axios interceptors to automatically handle token refreshing when encountering a `401 Unauthorized` response.
 
 ### Endpoints
 
@@ -108,11 +108,22 @@ Synchronize local (guest) bookmarks with the database upon user login.
 
 Returns the API status.
 
-**Response:**
+**Response (200 OK):**
 ```json
 {
-  "status": "ok",
-  "version": "2.0.0"
+  "status": "healthy",
+  "timestamp": "2026-09-18T12:00:00.000Z",
+  "services": {
+    "cache": {
+      "timestamp": "2026-09-18T12:00:00.000Z",
+      "memory": { "status": "ok", "size": 0 },
+      "memorySize": 0,
+      "cacheDuration": 300
+    },
+    "database": "connected"
+  },
+  "version": "2.0.0",
+  "stack": "next.js"
 }
 ```
 

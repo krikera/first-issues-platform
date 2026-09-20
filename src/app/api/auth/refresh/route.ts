@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import {
   extractBearerToken,
   verifyToken,
@@ -20,6 +21,15 @@ export async function POST(request: Request) {
     }
 
     const userId = parseInt(payload.sub, 10);
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, isActive: true },
+    });
+
+    if (!user || !user.isActive) {
+      throw new AuthenticationError("User account is inactive or no longer exists");
+    }
+
     const accessToken = await signAccessToken(userId);
 
     return NextResponse.json({

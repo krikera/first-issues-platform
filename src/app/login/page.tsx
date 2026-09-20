@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
+import { Logo } from "@/components/Logo";
 
 function LoginContent() {
   const router = useRouter();
@@ -20,7 +21,24 @@ function LoginContent() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      const redirectTo = searchParams.get("redirect") || "/";
+      const rawRedirect = searchParams.get("redirect");
+      let isSafeRedirect = false;
+
+      if (
+        rawRedirect &&
+        rawRedirect.startsWith("/") &&
+        !rawRedirect.startsWith("//") &&
+        !rawRedirect.startsWith("/\\")
+      ) {
+        try {
+          const resolved = new URL(rawRedirect, "http://localhost");
+          isSafeRedirect = resolved.origin === "http://localhost";
+        } catch {
+          isSafeRedirect = false;
+        }
+      }
+
+      const redirectTo = isSafeRedirect && rawRedirect ? rawRedirect : "/";
       router.push(redirectTo);
     }
   }, [isAuthenticated, router, searchParams]);
@@ -44,48 +62,109 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <Link href="/" className="inline-flex items-center space-x-2.5 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-extrabold text-sm">FI</div>
-            <span className="text-2xl font-bold text-foreground">First Issues</span>
+    <div className="min-h-screen flex items-center justify-center bg-canvas px-4 py-12 text-ink">
+      <div className="w-full max-w-md space-y-6">
+        <div className="text-center space-y-2">
+          <Link href="/" className="inline-flex items-center gap-2.5 group">
+            <Logo size={32} className="rounded-[6px]" />
+            <span className="font-display text-[18px] font-semibold tracking-[-0.2px] text-ink">
+              First Issues
+            </span>
           </Link>
-          <h2 className="mt-6 text-3xl font-extrabold text-foreground tracking-tight">Welcome back</h2>
-          <p className="mt-2 text-base font-medium text-muted-foreground">Sign in to sync your bookmarks across devices</p>
+          <h2 className="font-display text-[26px] font-semibold text-ink tracking-[-0.5px]">
+            Welcome back
+          </h2>
+          <p className="text-[14px] text-ink-subtle">
+            Sign in to sync your bookmarks across devices
+          </p>
         </div>
-        <div className="bg-card border border-border rounded-lg shadow-lg p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="font-semibold text-base">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} disabled={isLoading} autoComplete="email" required />
+
+        <div className="linear-panel p-7">
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-[13px] font-medium text-ink-muted">
+                Email address
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="you@example.com"
+                value={formData.email}
+                onChange={handleChange}
+                disabled={isLoading}
+                autoComplete="email"
+                required
+              />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password" className="font-semibold text-base">Password</Label>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-[13px] font-medium text-ink-muted">
+                Password
+              </Label>
               <div className="relative">
-                <Input id="password" name="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={formData.password} onChange={handleChange} disabled={isLoading} autoComplete="current-password" required />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" disabled={isLoading} tabIndex={-1}>
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                  autoComplete="current-password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-tertiary hover:text-ink transition-colors cursor-pointer"
+                  disabled={isLoading}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
+
             {(validationError || error) && (
-              <div className="flex items-start gap-2 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded-md">
-                <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
+              <div className="flex items-start gap-2 text-[13px] text-destructive-foreground bg-destructive/10 border border-destructive/20 p-2.5 rounded-[6px]">
+                <AlertCircle size={15} className="mt-0.5 flex-shrink-0" />
                 <span>{validationError || error}</span>
               </div>
             )}
-            <Button type="submit" className="w-full font-bold text-base py-6" disabled={isLoading}>
-              {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing in...</>) : "Sign In"}
+
+            <Button
+              type="submit"
+              className="w-full h-10 font-medium text-[14px] mt-2 cursor-pointer"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </Button>
           </form>
-          <div className="mt-6 text-center text-base">
-            <span className="text-muted-foreground font-medium">Don&apos;t have an account? </span>
-            <Link href="/register" className="text-primary hover:underline font-bold">Sign up</Link>
+
+          <div className="mt-5 text-center text-[13px]">
+            <span className="text-ink-subtle">Don&apos;t have an account? </span>
+            <Link href="/register" className="text-primary hover:text-primary-hover font-medium">
+              Sign up
+            </Link>
           </div>
         </div>
+
         <div className="text-center">
-          <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">← Back to home</Link>
+          <Link
+            href="/"
+            className="text-[13px] text-ink-subtle hover:text-ink transition-colors"
+          >
+            ← Back to feed
+          </Link>
         </div>
       </div>
     </div>
@@ -94,7 +173,13 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" /></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-canvas">
+          <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        </div>
+      }
+    >
       <LoginContent />
     </Suspense>
   );

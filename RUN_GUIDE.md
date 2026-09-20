@@ -16,7 +16,7 @@ Ensure the following dependencies are installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/krikera/first-issues.git
+git clone https://github.com/krikera/first-issues-platform.git
 cd first-issues
 ```
 

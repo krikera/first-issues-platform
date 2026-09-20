@@ -31,14 +31,14 @@ We love contributions from the community! Here are some areas where we're lookin
 1. Fork the repo and create your branch from `main`.
 2. If you've added code that should be tested, add tests.
 3. If you've changed APIs, update the documentation.
-4. Ensure the test suite passes.
-5. Make sure your code lints.
+4. Ensure the project builds and linter passes (`npm run build` && `npm run lint`).
+5. Make sure your code passes TypeScript type checks (`npx tsc --noEmit`).
 6. Issue that pull request!
 
 ### Reporting bugs
 
-1. Ensure the bug was not already reported by searching on GitHub under [Issues](https://github.com/yourusername/first-issues/issues).
-2. If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/yourusername/first-issues/issues/new). Be sure to include a title and clear description, as much relevant information as possible, and a code sample or an executable test case demonstrating the expected behavior that is not occurring.
+1. Ensure the bug was not already reported by searching on GitHub under [Issues](https://github.com/krikera/first-issues-platform/issues).
+2. If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/krikera/first-issues-platform/issues/new). Be sure to include a title and clear description, as much relevant information as possible, and a code sample or an executable test case demonstrating the expected behavior that is not occurring.
 
 ### Suggesting Enhancements
 

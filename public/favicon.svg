@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <linearGradient id="fi-logo-grad" x1="9" y1="24" x2="23" y2="8" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5e6ad2" />
+      <stop offset="1" stop-color="#828fff" />
+    </linearGradient>
+    <style>
+      .bg { fill: #141516; stroke: #23252a; }
+      .node-canvas { fill: #010102; }
+      @media (prefers-color-scheme: light) {
+        .bg { fill: #f6f7f7; stroke: #e4e6ea; }
+        .node-canvas { fill: #ffffff; }
+      }
+    </style>
+  </defs>
+
+  <rect width="32" height="32" rx="7" class="bg" stroke-width="1" />
+
+  <!-- Main Git Trunk -->
+  <line x1="10" y1="8" x2="10" y2="24" stroke="#5e6ad2" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Top Arm (Upper Git Branch) -->
+  <line x1="10" y1="8" x2="22.5" y2="8" stroke="url(#fi-logo-grad)" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Mid Arm (Git Feature Branch curving out from trunk) -->
+  <path d="M10 19.5 C10 15, 12.5 14.5, 15.5 14.5 H19.5" stroke="url(#fi-logo-grad)" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Top Branch End Commit Node -->
+  <circle cx="22.5" cy="8" r="2.2" fill="#5e6ad2" />
+
+  <!-- Trunk Top Node -->
+  <circle cx="10" cy="8" r="2.2" fill="#5e6ad2" />
+
+  <!-- Trunk Bottom Commit Node -->
+  <circle cx="10" cy="24" r="2.2" class="node-canvas" stroke="#5e6ad2" stroke-width="1.8" />
+
+  <!-- First Issue Target Node (Open issue ring with center accent dot) -->
+  <circle cx="19.5" cy="14.5" r="2.5" class="node-canvas" stroke="#828fff" stroke-width="1.8" />
+  <circle cx="19.5" cy="14.5" r="0.9" fill="#828fff" />
+</svg>

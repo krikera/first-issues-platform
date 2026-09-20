@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { RefreshCw } from "lucide-react"
 
 import { Issue } from "@/types"
+import type { BookmarkData } from "@/contexts/BookmarkContext"
 
 import ClientOnly from "./ClientOnly"
 import { QuickFilters } from "./search/QuickFilters"
@@ -31,11 +32,11 @@ interface ResultsSectionProps {
     dateTo: string
   }
   searchQuery: string
-  handleFilterChange: (filters: any) => void
+  handleFilterChange: (filters: Record<string, unknown>) => void
   setIssues: (issues: Issue[]) => void
   setIsSearching: (searching: boolean) => void
   isBookmarked: (id: string) => boolean
-  handleToggleBookmark: (id: string, issueData?: any) => void
+  handleToggleBookmark: (id: string, issueData?: BookmarkData) => void
   handleLoadMore: () => void
 }
 
@@ -59,9 +60,9 @@ export function ResultsSection({
   const router = useRouter()
 
   const handleRefresh = () => {
-    // Add refresh=true param to force cache clear
+    // Add unique refresh timestamp param to force cache clear and trigger Next.js route change
     const url = new URL(window.location.href)
-    url.searchParams.set("refresh", "true")
+    url.searchParams.set("refresh", Date.now().toString())
     router.replace(url.pathname + url.search)
   }
 
@@ -73,12 +74,12 @@ export function ResultsSection({
             {[...Array(5)].map((_, i) => (
               <div
                 key={`skeleton-${i}`}
-                className="bg-card border rounded-lg p-6"
+                className="linear-card p-5 space-y-3"
               >
-                <div className="animate-pulse space-y-3">
-                  <div className="h-4 bg-muted w-3/4 rounded" />
-                  <div className="h-3 bg-muted w-1/2 rounded" />
-                  <div className="h-3 bg-muted w-2/3 rounded" />
+                <div className="animate-pulse space-y-2.5">
+                  <div className="h-4 bg-surface-2 w-3/4 rounded-[4px]" />
+                  <div className="h-3 bg-surface-2 w-1/3 rounded-[4px]" />
+                  <div className="h-3 bg-surface-2 w-1/2 rounded-[4px]" />
                 </div>
               </div>
             ))}
@@ -120,8 +121,6 @@ export function ResultsSection({
           }}
           searchQuery={searchQuery}
           onFilterChange={handleFilterChange}
-          setIssues={setIssues}
-          setIsSearching={setIsSearching}
         />
       </div>
 
@@ -129,32 +128,32 @@ export function ResultsSection({
       <div className="lg:col-span-4">
         {/* Error and Empty States */}
         {error && !isSearching ? (
-          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-destructive rounded-full" />
-              <span className="text-destructive font-semibold">Error</span>
+          <div className="bg-destructive/10 border border-destructive/30 rounded-[12px] p-6 text-ink">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 bg-destructive rounded-full" />
+              <span className="text-[14px] font-medium text-destructive-foreground">Search Error</span>
             </div>
-            <p className="text-sm text-destructive/80">{error}</p>
+            <p className="text-[13px] text-ink-subtle">{error}</p>
           </div>
         ) : null}
 
         {issues.length === 0 && !error && !isLoading && !isSearching && (
-          <div className="bg-card border rounded-lg p-12 text-center">
-            <h3 className="text-lg font-semibold text-foreground mb-2">
-              {showBookmarked ? "No Bookmarks Found" : "No Results Found"}
+          <div className="linear-card p-12 text-center">
+            <h3 className="font-display text-[18px] font-medium text-ink tracking-[-0.3px] mb-2">
+              {showBookmarked ? "No Bookmarked Issues" : "No Issues Found"}
             </h3>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-[14px] text-ink-subtle max-w-md mx-auto mb-6 leading-relaxed">
               {showBookmarked
-                ? "You haven't bookmarked any issues yet. Browse issues and tap the bookmark icon to save them here."
-                : "No issues matched your current filters. Try broadening your search or removing some filters."}
+                ? "You haven't bookmarked any issues yet. Browse issues and tap the bookmark icon on any card to save it."
+                : "No open-source issues matched your current search filters. Try broadening your criteria."}
             </p>
             {!showBookmarked && (
               <button
                 onClick={() => {
                   handleFilterChange({
-                    minStars: "",
-                    maxStars: "",
-                    minForks: "",
+                    minStars: "0",
+                    maxStars: "1000000",
+                    minForks: "0",
                     language: [],
                     isAssigned: false,
                     category: "all",
@@ -163,9 +162,10 @@ export function ResultsSection({
                     showBookmarked: false,
                     dateFrom: "",
                     dateTo: "",
+                    searchQuery: "",
                   })
                 }}
-                className="px-4 py-2 text-sm font-medium text-primary border border-primary/30 rounded-md hover:bg-primary/10 transition-colors"
+                className="btn-secondary h-9 px-4 text-[13px] cursor-pointer"
               >
                 Reset All Filters
               </button>
@@ -175,32 +175,32 @@ export function ResultsSection({
 
         {/* Loading State */}
         {isLoading || isSearching ? (
-          <div className="space-y-4">
-            <div className="bg-card border rounded-lg p-12 text-center">
-              <div className="text-primary">
-                <div className="text-xl font-semibold mb-4">Loading...</div>
-                <div className="flex justify-center items-center gap-2">
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="w-2 h-2 bg-primary rounded-full animate-bounce"
-                      style={{
-                        animationDelay: `${i * 0.1}s`,
-                      }}
-                    />
-                  ))}
-                </div>
-                <div className="mt-4 text-sm text-muted-foreground">
-                  <span>Fetching beginner-friendly issues from GitHub...</span>
-                </div>
+          <div className="space-y-3">
+            <div className="linear-card p-10 text-center">
+              <div className="flex justify-center items-center gap-1.5 mb-3">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"
+                    style={{
+                      animationDelay: `${i * 0.15}s`,
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="font-display text-[15px] font-medium text-ink">
+                Fetching GitHub Issues...
+              </div>
+              <div className="text-[13px] text-ink-subtle mt-1">
+                Fetching beginner-friendly issues from active repositories
               </div>
             </div>
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-card border rounded-lg p-6 opacity-50">
-                <div className="animate-pulse space-y-3">
-                  <div className="h-4 bg-muted w-3/4 rounded" />
-                  <div className="h-3 bg-muted w-1/2 rounded" />
-                  <div className="h-3 bg-muted w-2/3 rounded" />
+              <div key={i} className="linear-card p-5 opacity-60">
+                <div className="animate-pulse space-y-2.5">
+                  <div className="h-4 bg-surface-2 w-3/4 rounded-[4px]" />
+                  <div className="h-3 bg-surface-2 w-1/3 rounded-[4px]" />
+                  <div className="h-3 bg-surface-2 w-1/2 rounded-[4px]" />
                 </div>
               </div>
             ))}
@@ -211,14 +211,16 @@ export function ResultsSection({
         {!isLoading && !isSearching && issues.length > 0 && (
           <div id="issues-section" className="space-y-4">
             {/* Refresh Button */}
-            <div className="flex justify-end mb-2">
+            <div className="flex justify-end mb-1">
               <button
+                type="button"
                 onClick={handleRefresh}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+                className="btn-secondary h-8 px-3 text-[12px] gap-1.5 cursor-pointer"
                 title="Refresh to get latest issues"
+                aria-label="Refresh issue feed"
               >
-                <RefreshCw className="w-4 h-4" />
-                <span>Refresh</span>
+                <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
+                <span>Refresh Feed</span>
               </button>
             </div>
             {renderIssueList()}
@@ -229,11 +231,11 @@ export function ResultsSection({
                 <button
                   onClick={handleLoadMore}
                   disabled={isSearching}
-                  className="px-8 py-3 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 font-medium transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary h-10 px-8 text-[14px] flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {isSearching ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                       <span>Loading...</span>
                     </>
                   ) : (

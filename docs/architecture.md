@@ -23,9 +23,8 @@ graph TB
 
     Browser --> NextApp
     NextApp -->|"REST + JWT"| NextAPI
-    NextApp -->|"GraphQL"| GitHubAPI
     NextAPI -->|"Prisma ORM"| PostgreSQL
-    NextAPI -->|"GraphQL"| GitHubAPI
+    NextAPI -->|"GraphQL (with server token)"| GitHubAPI
 ```
 
 ---
@@ -92,7 +91,7 @@ graph TB
 graph TB
     subgraph "Routes (src/app/api)"
         AuthRoutes["/api/auth/..."]
-        AnalyticsRoutes["/api/analytics/..."]
+        GitHubRoutes["/api/github/issues"]
         BookmarksRoutes["/api/bookmarks/..."]
         HealthRoutes["/api/health"]
     end
@@ -101,16 +100,14 @@ graph TB
         Prisma["Prisma Client (src/lib/prisma.ts)"]
     end
 
-    subgraph "Models (PostgreSQL)"
+    subgraph "Active Models (PostgreSQL)"
         UserModel["User"]
         BookmarkModel["Bookmark"]
-        RepositoryModel["Repository"]
-        AnalyticsModel["Analytics"]
     end
 
     AuthRoutes --> Prisma
     BookmarksRoutes --> Prisma
-    AnalyticsRoutes --> Prisma
+    HealthRoutes --> Prisma
 
     Prisma --> UserModel
     Prisma --> BookmarkModel
@@ -144,9 +141,10 @@ sequenceDiagram
     F->>F: Store in localStorage
 
     Note over U,DB: Authenticated Request
-    U->>F: Visit /analytics
-    F->>A: GET /api/analytics/* + Bearer token
+    U->>F: Visit /bookmarks
+    F->>A: GET /api/bookmarks + Bearer token
     A->>A: Validate JWT
+    A->>DB: Fetch user bookmarks
     A-->>F: 200 OK + data
 ```
 

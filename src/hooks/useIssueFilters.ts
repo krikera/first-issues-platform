@@ -48,19 +48,21 @@ export function useIssueFilters() {
       setMinForks(searchParams.get("minForks") || defaultFilters.minForks.toString());
       const langParam = searchParams.get("language");
       setLanguage(langParam ? langParam.split(" ") : defaultFilters.language);
-      setIsAssigned(searchParams.get("isAssigned") === "true" || defaultFilters.isAssigned);
+      const isAssignedParam = searchParams.get("isAssigned");
+      setIsAssigned(isAssignedParam !== null ? isAssignedParam === "true" : defaultFilters.isAssigned);
       setCategory(searchParams.get("category") || defaultFilters.category);
       setFramework(searchParams.get("framework") || defaultFilters.framework);
-      setHasPullRequests(searchParams.get("hasPullRequests") === "true" || defaultFilters.hasPullRequests);
-      setShowBookmarked(searchParams.get("showBookmarked") === "true" || defaultFilters.showBookmarked);
+      const hasPrParam = searchParams.get("hasPullRequests");
+      setHasPullRequests(hasPrParam !== null ? hasPrParam === "true" : defaultFilters.hasPullRequests);
+      const showBookmarkedParam = searchParams.get("showBookmarked");
+      setShowBookmarked(showBookmarkedParam !== null ? showBookmarkedParam === "true" : defaultFilters.showBookmarked);
       setDateFrom(searchParams.get("dateFrom") || defaultFilters.dateFrom);
       setDateTo(searchParams.get("dateTo") || defaultFilters.dateTo);
       setSearchQuery(searchParams.get("searchQuery") || defaultFilters.searchQuery);
     } catch (error) {
       console.error("Error reading URL parameters:", error);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [searchParams]);
 
   const submitFilters = useCallback(
     (updatedFilters: Record<string, string>) => {

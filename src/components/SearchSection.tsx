@@ -22,9 +22,6 @@ interface Filters {
   category: string
   framework: string
   searchQuery: string
-  onlyAssigned: boolean
-  hasIssues: boolean
-  recentlyActive: boolean
   isAssigned: boolean
   hasPullRequests: boolean
   showBookmarked: boolean
@@ -78,7 +75,7 @@ export function SearchSection({
   const [showDesktopFilter, setShowDesktopFilter] = useState(false)
   const router = useRouter()
 
-  const handleMobileSearch = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
     // Sanitize search input before creating form data
@@ -129,26 +126,29 @@ export function SearchSection({
 
   return (
     <div className="mb-8">
-      <div className="bg-card border border-border rounded-lg p-6 max-w-6xl mx-auto shadow-sm">
+      <div className="linear-panel p-5 sm:p-6 max-w-6xl mx-auto">
+        
         {/* Mobile and Tablet View */}
         <div className="lg:hidden">
           <div className="mb-4">
-            <h2 className="text-xl font-bold text-foreground">Search Issues</h2>
-            <p className="text-muted-foreground text-sm">
-              {issues.length} results found
-            </p>
+            <h2 className="font-display text-[20px] font-medium tracking-[-0.4px] text-ink">
+              Search Issues
+            </h2>
+            <div className="flex items-center gap-2 text-ink-subtle text-[13px] mt-0.5">
+              <span>{issues.length} results found</span>
+            </div>
           </div>
-          <form onSubmit={handleMobileSearch} className="space-y-4">
+          <form onSubmit={handleSearchSubmit} className="space-y-3">
             <SearchForm
               searchQuery={mobileSearchQuery}
               onSearchChange={setMobileSearchQuery}
               isLoading={isSearching}
               variant="mobile"
             />
-            <div className="flex gap-3">
+            <div className="flex gap-2.5">
               <button
                 type="submit"
-                className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors"
+                className="flex-1 h-10 px-4 bg-primary text-on-primary rounded-[8px] font-medium text-[14px] hover:bg-primary-hover active:bg-primary-focus transition-colors cursor-pointer"
               >
                 Search
               </button>
@@ -157,12 +157,12 @@ export function SearchSection({
                 onOpenChange={setShowMobileFilter}
               >
                 <PopoverTrigger asChild>
-                  <button className="px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md font-medium transition-colors">
+                  <button className="h-10 px-4 border border-hairline bg-surface-2 text-ink hover:border-hairline-strong hover:bg-surface-3 rounded-[8px] font-medium text-[14px] transition-colors cursor-pointer">
                     Filters
                   </button>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-80 max-h-[500px] bg-popover border-border"
+                  className="w-80 max-h-[500px] p-4 bg-surface-3"
                   showBackdrop={true}
                 >
                   <FilterPanel
@@ -178,6 +178,7 @@ export function SearchSection({
                       showBookmarked,
                       dateFrom,
                       dateTo,
+                      searchQuery: mobileSearchQuery,
                     }}
                     onFilterChange={onFilterChange}
                     setShowFilter={setShowMobileFilter}
@@ -190,28 +191,20 @@ export function SearchSection({
 
         {/* Desktop View */}
         <div className="hidden lg:block">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-2xl font-bold text-foreground">
+              <h2 className="font-display text-[22px] font-medium tracking-[-0.4px] text-ink">
                 Search Issues
               </h2>
-              <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
+              <div className="flex items-center gap-2 text-ink-subtle text-[13px] mt-0.5">
                 <span>{issues.length} results found</span>
-                <span>•</span>
-                <span className="flex items-center gap-1.5">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                  </span>
-                  Live
-                </span>
               </div>
             </div>
           </div>
 
           <form
-            onSubmit={handleMobileSearch}
-            className="flex items-center gap-4"
+            onSubmit={handleSearchSubmit}
+            className="flex items-center gap-3"
           >
             <SearchForm
               searchQuery={mobileSearchQuery}
@@ -221,7 +214,7 @@ export function SearchSection({
             />
             <button
               type="submit"
-              className="px-6 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors h-[42px]"
+              className="h-10 px-6 bg-primary text-on-primary rounded-[8px] font-medium text-[14px] hover:bg-primary-hover active:bg-primary-focus transition-colors cursor-pointer whitespace-nowrap"
             >
               Search
             </button>
@@ -231,12 +224,12 @@ export function SearchSection({
               onOpenChange={setShowDesktopFilter}
             >
               <PopoverTrigger asChild>
-                <button className="px-6 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-md font-medium transition-colors h-[42px] whitespace-nowrap">
-                  Advanced Search
+                <button className="h-10 px-5 border border-hairline bg-surface-2 text-ink hover:border-hairline-strong hover:bg-surface-3 rounded-[8px] font-medium text-[14px] transition-colors whitespace-nowrap cursor-pointer">
+                  Filters
                 </button>
               </PopoverTrigger>
               <PopoverContent
-                className="w-96 max-h-[600px] bg-popover border-border"
+                className="w-96 max-h-[600px] p-5 bg-surface-3"
                 showBackdrop={true}
               >
                 <FilterPanel
@@ -252,6 +245,7 @@ export function SearchSection({
                     showBookmarked,
                     dateFrom,
                     dateTo,
+                    searchQuery: mobileSearchQuery,
                   }}
                   onFilterChange={onFilterChange}
                   setShowFilter={setShowDesktopFilter}

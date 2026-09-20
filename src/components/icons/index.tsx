@@ -23,8 +23,8 @@ import {
   SiHaskell,
   SiDart,
   SiGo,
+  SiC,
 } from "react-icons/si"
-import { TbBrandCpp } from "react-icons/tb"
 
 export const ReactIcon = () => <FaReact />
 export const NodeJsIcon = () => <FaNodeJs />
@@ -46,7 +46,7 @@ export const ScalaIcon = () => <SiScala />
 export const RubyIcon = () => <SiRuby />
 export const RustIcon = () => <FaRust />
 export const CplusplusIcon = () => <SiCplusplus />
-export const CIcon = () => <TbBrandCpp />
+export const CIcon = () => <SiC />
 export const ElixirIcon = () => <SiElixir />
 export const HaskellIcon = () => <SiHaskell />
 export const DartIcon = () => <SiDart />

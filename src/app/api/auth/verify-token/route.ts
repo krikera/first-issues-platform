@@ -11,11 +11,12 @@ export async function GET(request: Request) {
     }
 
     const payload = await verifyToken(token);
-    if (!payload) {
+    if (!payload || payload.type !== "access") {
       return NextResponse.json({ valid: false }, { status: 401 });
     }
 
-    return NextResponse.json({ valid: true, user_id: payload.sub });
+    const userId = parseInt(payload.sub, 10);
+    return NextResponse.json({ valid: true, user: { id: userId }, user_id: payload.sub });
   } catch (error) {
     return handleApiError(error);
   }

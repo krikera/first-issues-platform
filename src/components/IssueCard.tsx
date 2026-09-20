@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react"
-import { Star, Code, MessageSquare } from "lucide-react"
+import { Star, Code, MessageSquare, GitPullRequest } from "lucide-react"
 
 import {
   ReactIcon,
@@ -30,6 +30,7 @@ import {
   DartIcon,
 } from "@/components/icons"
 import { Issue } from "@/types"
+import type { BookmarkData } from "@/contexts/BookmarkContext"
 import { formatRelativeTime } from "@/utils/dateUtils"
 import { getDifficultyResult } from "@/utils/difficultyScorer"
 
@@ -39,38 +40,35 @@ interface IssueCardProps {
   issue: Issue
   showPullRequests?: boolean
   isBookmarked: boolean
-  onToggleBookmark: (issueId: string) => void
+  onToggleBookmark: (
+    issueId: string,
+    issueData?: BookmarkData
+  ) => void
 }
 
-// Helper function to get difficulty badge styling
 const getDifficultyBadge = (issue: Issue) => {
-  // If we already have difficulty from backend, use it
   if (issue.difficulty_score) {
     if (issue.difficulty_score <= 3.0) {
       return {
-        emoji: "🟢",
         label: "Easy",
-        color: "bg-green-500/20 text-green-400 border-green-500/30",
+        color: "bg-surface-2 text-semantic-success border-semantic-success/30",
         score: issue.difficulty_score,
       }
     } else if (issue.difficulty_score <= 6.0) {
       return {
-        emoji: "🟡",
         label: "Medium",
-        color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+        color: "bg-surface-2 text-primary-hover border-primary/30",
         score: issue.difficulty_score,
       }
     } else {
       return {
-        emoji: "🔴",
         label: "Hard",
-        color: "bg-red-500/20 text-red-400 border-red-500/30",
+        color: "bg-surface-2 text-ink-muted border-hairline-strong",
         score: issue.difficulty_score,
       }
     }
   }
 
-  // Otherwise, calculate on the fly
   const result = getDifficultyResult({
     labels: issue.labels,
     comments_count: issue.comments_count,
@@ -81,15 +79,14 @@ const getDifficultyBadge = (issue: Issue) => {
   })
 
   const colorMap = {
-    green: "bg-green-500/20 text-green-400 border-green-500/30",
-    yellow: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    red: "bg-red-500/20 text-red-400 border-red-500/30",
+    green: "bg-surface-2 text-semantic-success border-semantic-success/30",
+    yellow: "bg-surface-2 text-primary-hover border-primary/30",
+    red: "bg-surface-2 text-ink-muted border-hairline-strong",
   }
 
   return {
-    emoji: result.emoji,
     label: result.label,
-    color: colorMap[result.color as keyof typeof colorMap],
+    color: colorMap[result.color as keyof typeof colorMap] || "bg-surface-2 text-ink-muted border-hairline",
     score: result.score,
   }
 }
@@ -130,92 +127,112 @@ export function IssueCard({
     issue.language && languageIcons[issue.language] ? (
       languageIcons[issue.language]
     ) : (
-      <Code className="w-4 h-4" />
+      <Code className="w-3.5 h-3.5 text-ink-subtle" />
     )
 
   const difficulty = getDifficultyBadge(issue)
 
   return (
     <article
-      className="relative bg-card/50 border border-border/50 rounded-lg overflow-hidden hover:border-primary/50 transition-colors duration-200"
+      className="group relative rounded-[12px] border border-hairline bg-surface-1 p-5 transition-all duration-150 hover:bg-surface-2 hover:border-hairline-strong"
       itemScope
       itemType="https://schema.org/SoftwareSourceCode"
     >
-      <div className="p-5">
-        <div className="flex justify-between items-start gap-4 mb-3">
-          <div className="space-y-1.5 flex-1 min-w-0">
-            {/* Title */}
-            <a
-              href={issue.html_url}
-              rel="noreferrer"
-              target="_blank"
-              className="block group"
-              aria-label={`View issue: ${issue.title} on GitHub`}
+      <div className="flex justify-between items-start gap-4 mb-3.5">
+        <div className="space-y-1.5 flex-1 min-w-0">
+          {/* Title */}
+          <a
+            href={issue.html_url}
+            rel="noreferrer"
+            target="_blank"
+            className="block"
+            aria-label={`View issue: ${issue.title} on GitHub`}
+          >
+            <h3
+              className="font-display text-[16px] sm:text-[17px] font-medium text-ink leading-[1.35] tracking-[-0.3px] group-hover:text-primary-hover transition-colors line-clamp-2"
+              itemProp="name"
             >
-              <h3
-                className="text-lg font-extrabold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight"
-                itemProp="name"
-              >
-                {issue.title}
-              </h3>
-              <meta itemProp="url" content={issue.html_url} />
+              {issue.title}
+            </h3>
+            <meta itemProp="url" content={issue.html_url} />
+          </a>
+
+          {/* Repository & Meta */}
+          <div className="flex items-center gap-2 text-[13px] text-ink-subtle">
+            <a
+              href={issue.repository_url}
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-ink transition-colors font-medium truncate max-w-[220px]"
+              itemProp="codeRepository"
+            >
+              {issue.repository_name}
             </a>
-
-            {/* Repository */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <a
-                href={issue.repository_url}
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-foreground transition-colors truncate max-w-[200px]"
-                itemProp="codeRepository"
-              >
-                {issue.repository_name}
-              </a>
-              <span>•</span>
-              <span className="text-xs">
-                {formatRelativeTime(issue.created_at)}
-              </span>
-            </div>
-          </div>
-
-          {/* Bookmark Button */}
-          <div className="flex-shrink-0 -mt-1 -mr-1">
-            <BookmarkButton
-              isBookmarked={isBookmarked}
-              onClick={() => onToggleBookmark(issue.id)}
-              aria-label={`${isBookmarked ? "Remove" : "Add"} bookmark`}
-            />
+            <span className="text-hairline-strong">·</span>
+            <span className="text-[12px] text-ink-tertiary">
+              {formatRelativeTime(issue.created_at)}
+            </span>
           </div>
         </div>
 
-        {/* Stats & Tags */}
-        <div className="flex flex-wrap items-center gap-3 mt-4">
-          {/* Difficulty Badge */}
-          <div
-            className={`px-2 py-0.5 rounded text-xs font-medium border ${difficulty.color}`}
-          >
-            {difficulty.label}
+        {/* Bookmark Button */}
+        <div className="flex-shrink-0">
+          <BookmarkButton
+            isBookmarked={isBookmarked}
+            onClick={() =>
+              onToggleBookmark(issue.id, {
+                issue_id: issue.id,
+                issue_url: issue.html_url,
+                issue_title: issue.title,
+                repository_name: issue.repository_name,
+              })
+            }
+            aria-label={`${isBookmarked ? "Remove" : "Add"} bookmark`}
+          />
+        </div>
+      </div>
+
+      {/* Tags, Language & Stats */}
+      <div className="flex flex-wrap items-center gap-2.5 pt-2 border-t border-hairline/60">
+        {/* Difficulty Badge */}
+        <div
+          className={`px-2 py-0.5 rounded-[4px] text-[11px] font-medium border uppercase tracking-[0.4px] ${difficulty.color}`}
+        >
+          {difficulty.label}
+        </div>
+
+        {/* Language */}
+        {issue.language ? (
+          <div className="flex items-center gap-1.5 text-[12px] text-ink-subtle border border-hairline bg-surface-2 px-2 py-0.5 rounded-[4px]">
+            {LanguageIcon}
+            <span>{issue.language}</span>
           </div>
+        ) : null}
 
-          {/* Language */}
-          {issue.language ? (
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground border border-border px-2 py-0.5 rounded">
-              {LanguageIcon}
-              <span>{issue.language}</span>
-            </div>
-          ) : null}
+        {issue.has_pull_requests ? (
+          <div className="flex items-center gap-1 text-[11px] text-ink-muted border border-hairline bg-surface-2 px-2 py-0.5 rounded-[4px]">
+            <GitPullRequest className="w-3 h-3 text-primary-hover" />
+            <span>
+              {issue.pr_status === "DRAFT"
+                ? "PR Draft"
+                : issue.pr_status === "CLOSED"
+                ? "PR Closed"
+                : issue.pr_status === "OPEN"
+                ? "PR Open"
+                : "PR Linked"}
+            </span>
+          </div>
+        ) : null}
 
-          {/* Stats */}
-          <div className="flex items-center gap-3 text-xs text-muted-foreground ml-auto">
-            <div className="flex items-center gap-1">
-              <Star className="w-3.5 h-3.5" />
-              <span>{issue.stars_count}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <MessageSquare className="w-3.5 h-3.5" />
-              <span>{issue.comments_count}</span>
-            </div>
+        {/* Stats */}
+        <div className="flex items-center gap-3 text-[12px] font-mono text-ink-tertiary ml-auto">
+          <div className="flex items-center gap-1 hover:text-ink-subtle transition-colors">
+            <Star className="w-3.5 h-3.5 text-hairline-strong group-hover:text-primary-focus transition-colors" />
+            <span>{issue.stars_count}</span>
+          </div>
+          <div className="flex items-center gap-1 hover:text-ink-subtle transition-colors">
+            <MessageSquare className="w-3.5 h-3.5 text-hairline-strong" />
+            <span>{issue.comments_count}</span>
           </div>
         </div>
       </div>

@@ -5,16 +5,27 @@
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
 import bcrypt from "bcryptjs";
 
-if (!process.env.JWT_SECRET_KEY) {
-  throw new Error("JWT_SECRET_KEY environment variable is not defined");
+function getJwtSecret(): Uint8Array {
+  const secret = process.env.JWT_SECRET_KEY;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("FATAL: JWT_SECRET_KEY environment variable is required in production mode.");
+    }
+    return new TextEncoder().encode("fallback-secret-for-build-and-dev-environment-minimum-32-chars");
+  }
+  if (secret.length < 32 && process.env.NODE_ENV === "production") {
+    throw new Error("FATAL: JWT_SECRET_KEY must be at least 32 characters long in production mode.");
+  }
+  return new TextEncoder().encode(secret);
 }
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET_KEY);
+
+const JWT_SECRET = getJwtSecret();
 
 const ACCESS_TOKEN_EXPIRES = "15m"; // 15 minutes
 const REFRESH_TOKEN_EXPIRES = "7d"; // 7 days
 
-// in-memory token blacklist (for logout)
-const tokenBlacklist = new Set<string>();
+// In-memory token blacklist mapping jti -> expiration timestamp (ms)
+const tokenBlacklist = new Map<string, number>();
 
 export interface TokenPayload extends JWTPayload {
   sub: string; // user id
@@ -46,8 +57,14 @@ export async function verifyToken(
     const { payload } = await jwtVerify(token, JWT_SECRET);
 
     // Check blacklist
-    if (payload.jti && tokenBlacklist.has(payload.jti)) {
-      return null;
+    if (payload.jti) {
+      const expiresAt = tokenBlacklist.get(payload.jti);
+      if (expiresAt) {
+        if (Date.now() < expiresAt) {
+          return null;
+        }
+        tokenBlacklist.delete(payload.jti);
+      }
     }
 
     return payload as TokenPayload;
@@ -56,13 +73,13 @@ export async function verifyToken(
   }
 }
 
-export function blacklistToken(jti: string): void {
-  tokenBlacklist.add(jti);
+export function blacklistToken(jti: string, ttlMs: number = 7 * 24 * 60 * 60 * 1000): void {
+  tokenBlacklist.set(jti, Date.now() + ttlMs);
 
-  // Auto-cleanup after 1 hour to prevent memory leak
+  // Auto-cleanup after ttl
   setTimeout(() => {
     tokenBlacklist.delete(jti);
-  }, 60 * 60 * 1000);
+  }, Math.min(ttlMs, 2147483647));
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -120,12 +137,12 @@ export function validateUsername(username: string): boolean {
 export async function getAuthenticatedUserId(
   request: Request
 ): Promise<number | null> {
-  const headerUserId = request.headers.get("x-user-id");
-  if (headerUserId) return parseInt(headerUserId, 10);
-
   const authHeader = request.headers.get("Authorization");
   const token = extractBearerToken(authHeader);
-  if (!token) return null;
+  if (!token) {
+    // If no authorization header, check whether an internal verified header exists only alongside middleware verification
+    return null;
+  }
 
   const payload = await verifyToken(token);
   if (!payload || payload.type !== "access") return null;
