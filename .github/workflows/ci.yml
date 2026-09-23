@@ -43,3 +43,5 @@ jobs:
         run: npm run build
         env:
           NEXT_PUBLIC_APP_URL: http://localhost:3000
+          JWT_SECRET_KEY: ci-build-secret-key-at-least-32-characters-long
+
