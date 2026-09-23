@@ -28,23 +28,34 @@ We love contributions from the community! Here are some areas where we're lookin
 
 ## How to contribute
 
-1. Fork the repo and create your branch from `main`.
-2. If you've added code that should be tested, add tests.
-3. If you've changed APIs, update the documentation.
-4. Ensure the project builds and linter passes (`npm run build` && `npm run lint`).
-5. Make sure your code passes TypeScript type checks (`npx tsc --noEmit`).
-6. Issue that pull request!
+1. **Branch Protection**: Direct commits or pushes to the primary branch (`main`) are strictly prohibited (`osps_ac_03_01`). All contributions must be submitted via Pull Requests.
+2. Fork the repository and create a descriptive feature branch from `main` (e.g., `git checkout -b feature/issue-filters`).
+3. If you've added new code, add automated tests covering the functionality.
+4. If you've changed APIs, update the corresponding documentation in `docs/` and `README.md`.
+5. Ensure the project builds cleanly and all checks pass (`npm run build` && `npm run lint`).
+6. Make sure your code passes TypeScript type checks (`npx tsc --noEmit`).
+7. Never commit private credentials, API keys, or `.env` files (`osps_br_07_01`).
+8. Submit your Pull Request using the repository pull request template for review.
 
-### Reporting bugs
+### Reporting Bugs & Defects
 
-1. Ensure the bug was not already reported by searching on GitHub under [Issues](https://github.com/krikera/first-issues-platform/issues).
-2. If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/krikera/first-issues-platform/issues/new). Be sure to include a title and clear description, as much relevant information as possible, and a code sample or an executable test case demonstrating the expected behavior that is not occurring.
+We welcome bug and defect reports to maintain high project quality (`osps_do_02_01`):
+
+1. **Search Existing Reports**: Ensure the bug was not already reported by searching under [GitHub Issues](https://github.com/krikera/first-issues-platform/issues).
+2. **Submit Structured Defect Report**: Open a new issue using our [Bug Report Template](https://github.com/krikera/first-issues-platform/issues/new?template=bug_report.yml).
+3. **Information Required**:
+   - Clear title and concise summary of the problem.
+   - Exact step-by-step reproduction instructions.
+   - Expected behavior vs. actual behavior.
+   - Relevant error logs, console output, or screenshots.
+   - Environment details (Node.js version, browser, OS, package versions).
+4. **Triage & Resolution**: The maintainer triages incoming issues within 7 business days. Security-sensitive defects must be reported according to [SECURITY.md](SECURITY.md) instead of public issues.
 
 ### Suggesting Enhancements
 
-1. Open a new issue with a clear title and description.
-2. Provide as much context as you can about what you're running into.
-3. Provide project and platform versions (nodejs, npm, etc), depending on what seems relevant.
+1. Open a new issue with a clear title and description using the [Feature Request Template](https://github.com/krikera/first-issues-platform/issues/new?template=feature_request.yml).
+2. Describe the problem your enhancement solves and propose an implementation approach.
+3. Discuss the proposed design with maintainers before submitting large pull requests.
 
 ## Style guide
 
@@ -59,9 +70,13 @@ We love contributions from the community! Here are some areas where we're lookin
 
 We use Tailwind CSS for styling. Please refer to the [Tailwind CSS documentation](https://tailwindcss.com/docs) for guidelines on writing efficient and maintainable CSS.
 
-## Community
+## Community & Public Discussions
 
-- Open a new discussion on the discussions tab in Github
+We provide multiple mechanisms for public discussions about proposed changes, architectural decisions, and usage obstacles (`osps_gv_02_01`):
+
+- **GitHub Discussions**: Use [GitHub Discussions](https://github.com/krikera/first-issues-platform/discussions) for general questions, feature brainstorming, and architectural proposals.
+- **GitHub Issues**: Use [GitHub Issues](https://github.com/krikera/first-issues-platform/issues) for specific defect reports and tracked tasks.
+- **Pull Request Reviews**: All code contributions are reviewed openly in public pull request discussions.
 
 Remember, contributions to this project should be fun and engaging. If you're ever unsure about anything, just ask! We're here to help and to make contributing to this project as easy and transparent as possible.
 

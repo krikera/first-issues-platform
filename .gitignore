@@ -38,6 +38,9 @@ dist/
 *.crt
 *.pfx
 *.p12
+id_rsa*
+id_ed25519*
+*.token
 credentials.json
 service-account*.json
 client_secret*.json

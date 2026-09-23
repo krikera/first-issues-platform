@@ -120,9 +120,15 @@ first-issues/
 
 Refer to [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
+## Repository Scope & Distribution
+
+- **Repository Scope**: First Issues is maintained as a single, unified source repository (`krikera/first-issues-platform`). The project does not maintain multiple or external subproject repositories (`osps_qa_04_01`).
+- **Encrypted Channels**: All official project channels (repository, documentation, issue tracker) are delivered exclusively over encrypted HTTPS/TLS (`osps_br_03_01`).
+- **Distribution Authenticity**: Official distributions and dependencies are managed through cryptographically authenticated channels (Git over SSH/HTTPS and npm with SHA-512 package lockfiles) (`osps_br_03_02`).
+
 ## License
 
-Distributed under the MIT License. See [LICENSE](LICENSE) for details.
+Distributed under the MIT License. Both the source code and all released software assets are licensed under the MIT License (`osps_le_02_01`, `osps_le_02_02`). See [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 

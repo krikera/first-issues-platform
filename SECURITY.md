@@ -6,10 +6,32 @@ We support security fixes on the `main` branch. Please use the latest release.
 
 ## Reporting a Vulnerability
 
-- **Email**: [EMAIL_ADDRESS]
-- Do not open public issues for vulnerabilities.
-- Provide a clear description, reproduction steps, affected versions, and impact.
-- We aim to acknowledge receipt within 3 business days and provide a remediation timeline.
+- **Security Advisory (Preferred)**: Open a private advisory report at [GitHub Security Advisories](https://github.com/krikera/first-issues-platform/security/advisories/new).
+- **Email Contact**: Send details to `[SECURITY_CONTACT_EMAIL]` (PGP key available upon request).
+- **Policy**: Do not open public GitHub issues for security vulnerabilities.
+- **Details to Include**: A comprehensive vulnerability description, steps to reproduce, affected software versions, and potential impact.
+- **SLA**: Initial acknowledgment within 48 hours; assessment and remediation timeline provided within 7 business days.
+
+## Access Control & Governance Policies
+
+### 1. Multi-Factor Authentication (MFA / 2FA)
+- Multi-factor authentication is mandatory for all project maintainers and collaborators with write or administrative access to the repository (`osps_ac_01_01`).
+- GitHub organization and repository access controls enforce MFA prior to modifying code, branch settings, or release assets.
+
+### 2. Collaborator Permission Management
+- New collaborators must be explicitly invited and assigned the minimum permissions necessary for their role (Read/Triage by default) (`osps_ac_02_01`).
+- Escalated write or administrative privileges require manual review and approval by the primary repository maintainer (@krikera).
+
+### 3. Branch Protection & Change Control
+- Direct pushes or commits to the primary branch (`main`) are strictly prevented (`osps_ac_03_01`).
+- All changes must be submitted via feature branch pull requests, undergo automated checks, and be reviewed prior to merge.
+- The `main` branch is designated as the default branch in the version control system, preventing deletion or force-pushing without explicit administrative authorization (`osps_ac_03_02`).
+
+### 4. Secret Prevention & Credential Management
+- Unencrypted secrets, tokens, API keys, and credentials must never be committed to version control (`osps_br_07_01`).
+- All local environment variables are managed through `.env` files that are strictly excluded in `.gitignore`.
+- Automated secret scanning (via GitHub Secret Scanning and pre-commit checks) is enforced to detect and block accidental secret exposure.
+- If a credential is ever inadvertently pushed, it must be considered immediately compromised, revoked, and rotated.
 
 ## Security Implementation Guide
 
