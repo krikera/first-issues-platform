@@ -1,11 +1,12 @@
 {
   "name": "first-issues",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
+    "test": "vitest run",
     "lint": "tsc --noEmit",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
@@ -63,7 +64,8 @@
     "postcss": "^8.4.38",
     "prisma": "^6.19.3",
     "tailwindcss": "^4.3.3",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^2.1.9"
   },
   "engines": {
     "node": ">=20.0.0"
