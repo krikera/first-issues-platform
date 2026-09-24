@@ -29,6 +29,49 @@ graph TB
 
 ---
 
+## System Actors & Actions Architecture <!-- osps_sa_01_01 -->
+
+The First Issues platform defines clear operational boundaries and privilege levels across four key actors:
+
+### 1. System Actors
+
+```mermaid
+graph LR
+    subgraph "External Actors"
+        Guest["Guest User<br/>(Anonymous)"]
+        AuthUser["Authenticated User<br/>(JWT Bearer)"]
+        Maintainer["Project Maintainer<br/>(Admin / Lead)"]
+    end
+
+    subgraph "System Boundary (First Issues)"
+        WebApp["Next.js Web Client"]
+        APIRoutes["Next.js Server API"]
+        DB[("PostgreSQL DB")]
+    end
+
+    subgraph "Third-Party Services"
+        GHAPI["GitHub GraphQL API"]
+    end
+
+    Guest -->|"Search & Filter Issues<br/>Local Bookmarks"| WebApp
+    AuthUser -->|"Cloud Sync Bookmarks<br/>Profile Management"| WebApp
+    WebApp -->|"Validated Requests"| APIRoutes
+    APIRoutes -->|"Query Issues (Cached)"| GHAPI
+    APIRoutes -->|"Persist User Data"| DB
+    Maintainer -->|"Review PRs, Deploy,<br/>Rotate Secrets, Cut Releases"| APIRoutes
+```
+
+### 2. Actor-to-Action Matrix
+
+| Actor | Action / Capability | Interface / Route | Authentication Required | Data Storage / Destination |
+| :--- | :--- | :--- | :---: | :--- |
+| **Guest User** | • Discover open-source issues<br>• Filter by language, stars, & recency<br>• Compute heuristic difficulty scores<br>• Bookmark issues locally<br>• View language analytics & changelog | `GET /`<br>`POST /api/github/issues`<br>`GET /analytics`<br>`GET /changelog` | No | LocalStorage (Client-only) |
+| **Authenticated User** | • Register new user account<br>• Log in and obtain JWT access/refresh tokens<br>• Sync local bookmarks to cloud DB<br>• Create, read, update, delete bookmarks<br>• View authenticated profile | `POST /api/auth/register`<br>`POST /api/auth/login`<br>`POST /api/bookmarks/sync`<br>`GET/POST/PATCH/DELETE /api/bookmarks`<br>`GET /profile` | Yes (Bearer JWT) | PostgreSQL Database |
+| **Project Maintainer** | • Review and merge code contributions<br>• Verify DCO sign-offs & CI status checks<br>• Trigger cryptographically signed releases<br>• Manage environment secrets & database schema<br>• Coordinated Vulnerability Disclosure triage | GitHub Repo<br>GitHub Actions (`release.yml`)<br>Vercel Edge Console<br>Prisma DB CLI | Yes (MFA / WebAuthn / Owner) | GitHub, Vercel, Supabase |
+| **GitHub GraphQL Service** | • Answer authenticated GraphQL queries<br>• Provide real-time repository stars, issues, and labels | `https://api.github.com/graphql` | Server Key (`GITHUB_API_KEY`) | GitHub Platform |
+
+---
+
 ## Production Deployment
 
 ```mermaid

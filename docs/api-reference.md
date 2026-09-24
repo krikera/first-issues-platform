@@ -102,6 +102,89 @@ Synchronize local (guest) bookmarks with the database upon user login.
 
 ---
 
+## GitHub Issues Discovery <!-- osps_sa_02_01 -->
+
+### GET /api/github/issues
+
+Queries and returns aggregated beginner-friendly GitHub issues matching specified filters. Responses are cached server-side (5-minute TTL) with sliding-window rate limiting (60 req/min).
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `language` | string | `""` | Filter by programming language (e.g., `javascript`, `python`, `rust`). |
+| `minStars` | integer | `0` | Minimum repository star count. |
+| `maxStars` | integer | `1000000` | Maximum repository star count. |
+| `minForks` | integer | `0` | Minimum repository forks count. |
+| `isAssigned` | boolean | `false` | When true, returns only assigned issues; false for unassigned. |
+| `category` | string | `"all"` | Issue topic category (e.g. `web`, `ai`, `cli`, `all`). |
+| `framework` | string | `""` | Framework filter (e.g. `react`, `nextjs`, `vue`). |
+| `cursor` | string | `null` | Pagination cursor for next page of issues. |
+| `refresh` | boolean | `false` | Force bypass cache (rate-limited to 6 req/min per IP). |
+
+**Response (200 OK):**
+```json
+{
+  "issues": [
+    {
+      "id": "I_kwDO...",
+      "title": "Fix typo in documentation",
+      "url": "https://github.com/org/repo/issues/12",
+      "labels": ["good first issue", "docs"],
+      "comments_count": 0,
+      "created_at": "2026-09-20T10:00:00Z",
+      "repository": {
+        "name": "repo",
+        "owner": "org",
+        "stars_count": 1200,
+        "forks_count": 85,
+        "primary_language": "TypeScript"
+      },
+      "difficulty": {
+        "score": 2.5,
+        "label": "Easy",
+        "color": "green",
+        "emoji": "🟢"
+      }
+    }
+  ],
+  "pageInfo": {
+    "hasNextPage": true,
+    "endCursor": "Y3Vyc29yOnYyOpHO..."
+  },
+  "totalCount": 42
+}
+```
+
+---
+
+## Client Error Telemetry <!-- osps_sa_02_01 -->
+
+### POST /api/errors
+
+Receives sanitized client error payloads for diagnostics. Rate-limited to 30 requests per minute per IP.
+
+**Request Body:**
+```json
+{
+  "error": {
+    "message": "Failed to fetch GraphQL resource",
+    "name": "NetworkError"
+  },
+  "url": "http://localhost:3000/analytics",
+  "timestamp": "2026-09-24T08:00:00.000Z"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "received": true
+}
+```
+
+---
+
 ## Health Check
 
 ### GET /api/health
@@ -122,7 +205,7 @@ Returns the API status.
     },
     "database": "connected"
   },
-  "version": "2.0.0",
+  "version": "1.0.0",
   "stack": "next.js"
 }
 ```
