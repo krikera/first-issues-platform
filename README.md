@@ -1,7 +1,7 @@
 # First Issues
 
 
-[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/PLACEHOLDER_ID/badge)](https://www.bestpractices.dev/projects/PLACEHOLDER_ID)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14786/badge)](https://www.bestpractices.dev/projects/14786)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 First Issues is a web application designed to help developers find beginner-friendly open-source contributions. It queries the GitHub GraphQL API to aggregate, filter, and score "good first issue" problems across public repositories.
