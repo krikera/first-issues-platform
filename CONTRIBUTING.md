@@ -31,7 +31,7 @@ We love contributions from the community! Here are some areas where we're lookin
 1. **Branch Protection**: Direct commits or pushes to the primary branch (`main`) are strictly prohibited. <!-- osps_ac_03_01 --> All contributions must be submitted via Pull Requests.
 2. Fork the repository and create a descriptive feature branch from `main` (e.g., `git checkout -b feature/issue-filters`).
 3. **Legal Authorization / DCO**: All commits must assert that the contributor is legally authorized to submit the code under the project's MIT license. <!-- osps_le_01_01 --> Use `git commit -s` to include a Developer Certificate of Origin `Signed-off-by:` trailer on every commit.
-4. If you've added new code, add automated tests covering the functionality. <!-- osps_qa_06_01 -->
+4. **Automated Tests**: If you've added new features, altered logic, or fixed defects, you MUST add or update automated tests covering the functionality in the Vitest suite. <!-- osps_qa_06_01, osps_qa_06_03 -->
 5. If you've changed APIs, update the corresponding documentation in `docs/` and `README.md`.
 6. Ensure the project builds cleanly, tests pass, and all checks pass (`npm test`, `npm run lint`, `npm run build`).
 7. Make sure your code passes TypeScript type checks (`npx tsc --noEmit`).
@@ -110,13 +110,47 @@ See `README.md` for required environment variables.
 
 ```bash
 npm test             # Run automated Vitest test suite
-npm run lint         # Run ESLint validation
-npx tsc --noEmit     # Execute TypeScript type checking
+npm run lint         # Run TypeScript typechecks
 npm run build        # Validate Next.js production build
 ```
+
+---
+
+## Testing Guide & Policy <!-- osps_qa_06_02, osps_qa_06_03 -->
+
+### 1. When Tests Are Run <!-- osps_qa_06_02 -->
+- **Local Development**: Contributors must execute the automated test suite locally prior to opening or updating pull requests.
+- **Continuous Integration (CI)**: Tests execute automatically on every commit push to `main` and on all pull requests via [.github/workflows/ci.yml](.github/workflows/ci.yml).
+- **Release Verification**: Tests execute automatically prior to packaging and publishing any release archive in [.github/workflows/release.yml](.github/workflows/release.yml).
+
+### 2. How Tests Are Run <!-- osps_qa_06_02 -->
+The project uses [Vitest](https://vitest.dev/) configured in `vitest.config.ts`:
+- **Run all automated tests**:
+  ```bash
+  npm test
+  ```
+- **Run tests in watch mode during development**:
+  ```bash
+  npx vitest
+  ```
+- **Run tests with coverage reporting**:
+  ```bash
+  npx vitest run --coverage
+  ```
+- **Run a specific test suite**:
+  ```bash
+  npx vitest run src/utils/difficultyScorer.test.ts
+  ```
+
+### 3. Policy on Automated Tests for Major Changes <!-- osps_qa_06_03 -->
+- **Mandatory Test Requirement**: All major changes, architectural modifications, new features, and defect fixes MUST add or update tests covering the functionality in the automated test suite.
+- **Merge Gate**: Pull requests introducing major logic changes without accompanying automated unit or integration tests will be held from merging until appropriate test coverage is added.
+
+---
 
 ### Commit & PR
 
 - Create a feature branch off `main`
 - Ensure linting and TypeScript checks pass
 - Submit PR using the template; include screenshots for UI changes
+

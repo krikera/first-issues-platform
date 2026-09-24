@@ -5,16 +5,18 @@ on:
     tags:
       - "v*.*.*"
 
-permissions:
-  contents: write
-  id-token: write
-  attestations: write
+# Principle of least privilege (osps_ac_04_01, osps_ac_04_02)
+permissions: {}
 
 jobs:
   build-and-release:
     name: Build, Sign & Release
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
 
     steps:
       - name: Checkout repository
@@ -32,6 +34,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # osps_vm_05_02
+      - name: Pre-Release Clean SCA Audit Gate
+        run: npm audit --audit-level=high --omit=dev
+
       - name: Generate Prisma Client
         run: npx prisma generate
 
@@ -45,22 +51,34 @@ jobs:
           NEXT_PUBLIC_APP_URL: http://localhost:3000
           JWT_SECRET_KEY: ci-build-secret-key-at-least-32-characters-long
 
-      # osps_br_02_01
-      - name: Package Release Archive
+      # osps_qa_02_02
+      - name: Generate CycloneDX SBOM
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          SBOM_NAME="first-issues-${VERSION}-sbom.cdx.json"
+          npx -y @cyclonedx/cyclonedx-npm --output-file "${SBOM_NAME}" --omit dev
+          echo "SBOM_NAME=${SBOM_NAME}" >> $GITHUB_ENV
+
+      # osps_br_02_01, osps_br_02_02
+      - name: Package Release Archive & Checksums
         run: |
           VERSION="${GITHUB_REF_NAME}"
           ARCHIVE_NAME="first-issues-${VERSION}.tar.gz"
+          CHECKSUM_NAME="first-issues-${VERSION}-checksums.txt"
           tar --exclude='./node_modules' --exclude='./.git' --exclude='./.next/cache' -czf "${ARCHIVE_NAME}" .
-          sha256sum "${ARCHIVE_NAME}" > checksums.txt
+          sha256sum "${ARCHIVE_NAME}" "${SBOM_NAME}" > "${CHECKSUM_NAME}"
           echo "ARCHIVE_NAME=${ARCHIVE_NAME}" >> $GITHUB_ENV
+          echo "CHECKSUM_NAME=${CHECKSUM_NAME}" >> $GITHUB_ENV
 
       # osps_br_06_01
       - name: Generate SLSA Build Provenance Attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-path: ${{ env.ARCHIVE_NAME }}
+          subject-path: |
+            ${{ env.ARCHIVE_NAME }}
+            ${{ env.SBOM_NAME }}
 
-      # osps_br_04_01
+      # osps_br_04_01, osps_br_02_02, osps_qa_02_02
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -70,4 +88,5 @@ jobs:
           prerelease: false
           files: |
             ${{ env.ARCHIVE_NAME }}
-            checksums.txt
+            ${{ env.SBOM_NAME }}
+            ${{ env.CHECKSUM_NAME }}

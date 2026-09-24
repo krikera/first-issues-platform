@@ -6,9 +6,8 @@ on:
   pull_request:
     branches: [main]
 
-# Principle of least privilege (osps_ac_04_01, osps_br_01_03)
-permissions:
-  contents: read
+# Principle of least privilege (osps_ac_04_01, osps_ac_04_02, osps_br_01_03)
+permissions: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,6 +18,8 @@ jobs:
     name: Test, Lint & Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read # osps_ac_04_02
 
     steps:
       - name: Checkout repository
@@ -26,11 +27,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      # osps_le_01_01
+      # osps_le_01_01, osps_br_01_04
       - name: Verify DCO Sign-off
         if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          COMMITS=$(git log --no-merges origin/${{ github.base_ref }}..HEAD --format="%H")
+          COMMITS=$(git log --no-merges origin/"$BASE_REF"..HEAD --format="%H")
           for COMMIT in $COMMITS; do
             if ! git log -n 1 --format="%B" $COMMIT | grep -E -q "^Signed-off-by: .+ <.+@.+>"; then
               echo "❌ Error: Commit $COMMIT is missing a valid Developer Certificate of Origin (DCO) sign-off."
@@ -50,6 +53,10 @@ jobs:
       # osps_br_05_01
       - name: Install dependencies
         run: npm ci
+
+      # osps_vm_05_03
+      - name: Dependency Vulnerability Audit (SCA)
+        run: npm audit --audit-level=high --omit=dev
 
       - name: Generate Prisma Client
         run: npx prisma generate
