@@ -38,7 +38,25 @@ Access reviews are conducted semi-annually. In the event of offboarding or compr
 
 ---
 
-## 4. Decision Making & Dispute Resolution
+## 4. Collaborator Review & Escalated Permissions Policy <!-- osps_gv_04_01 -->
+
+Prior to granting any collaborator escalated access to sensitive resources (write access to feature branches, issue triage rights, or administrative roles), the project mandates a formal review process:
+
+1. **Demonstrated Contribution Track Record**:
+   - The candidate must have authored and successfully merged at least **3 substantial pull requests** within the preceding 6 months.
+   - All contributions must have passed automated test suites, typechecks, and DCO sign-off requirements.
+2. **Security & Authentication Verification**:
+   - The candidate must have enabled hardware-backed or application-based Multi-Factor Authentication (MFA / 2FA) on their GitHub account.
+   - The candidate must acknowledge and adhere to the project's [Security Policy](SECURITY.md) and secrets handling rules.
+3. **Community & Governance Alignment**:
+   - The candidate must demonstrate positive adherence to the [Code of Conduct](CODE_OF_CONDUCT.md).
+   - Escalation requires formal proposal and unanimous approval by the primary Project Lead (@krikera).
+4. **Access Reviews & Offboarding**:
+   - Permissions are audited semi-annually. Collaborators who have been inactive for more than 6 months have write access revoked. In the event of offboarding or suspected compromise, access is revoked immediately within 12 hours.
+
+---
+
+## 5. Decision Making & Dispute Resolution
 
 1. **RFCs & Significant Changes**: Major architectural decisions, dependency removals, or security policy updates must be proposed via [GitHub Discussions](https://github.com/krikera/first-issues-platform/discussions) or RFC issues.
 2. **Consensus**: Maintainers seek consensus among active participants.
@@ -46,8 +64,12 @@ Access reviews are conducted semi-annually. In the event of offboarding or compr
 
 ---
 
-## 5. Branch Protection & Release Authority
+## 6. Branch Protection & Non-Author Approval Policy <!-- osps_ac_03_01, osps_qa_03_01, osps_qa_07_01 -->
 
-- No user (including administrators) may push directly to `main`. <!-- osps_ac_03_01 -->
-- All changes must pass automated CI checks (`Test, Lint & Build`) and have a passing review before merge. <!-- osps_qa_03_01 -->
-- Only the Project Lead may publish official release tags and release assets. <!-- osps_br_02_01 -->
+The repository's version control system enforces strict branch protection on `main`:
+
+1. **No Direct Pushes**: No user (including repository administrators) may push or commit directly to the primary branch (`main`). <!-- osps_ac_03_01 -->
+2. **Mandatory Non-Author Human Review**: Every pull request targeting the primary branch MUST require at least **one non-author human review approval** before merging is permitted by the version control system. <!-- osps_qa_07_01 -->
+3. **Automated Status Check Gates**: All pull requests must pass required automated status checks (`Test, Lint & Build`, DCO Verification, Dependency SCA Audit, CodeQL SAST Analysis) before the merge button is unlocked. <!-- osps_qa_03_01 -->
+4. **Release Exclusivity**: Only the Project Lead may publish official release tags and release assets. <!-- osps_br_02_01 -->
+

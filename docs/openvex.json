@@ -1,0 +1,73 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://github.com/krikera/first-issues-platform/docs/openvex.json",
+  "author": "Project Lead & Security Officer <prafulrai522@gmail.com>",
+  "role": "Project Maintainer",
+  "timestamp": "2026-09-24T09:16:00Z",
+  "version": 1,
+  "tooling": "OpenVEX CLI / First Issues Release Engineering",
+  "statements": [
+    {
+      "vulnerability": {
+        "name": "GHSA-82fw-gwwq-j7x9",
+        "description": "Vitest Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock"
+      },
+      "products": [
+        {
+          "@id": "pkg:npm/%40vitest/mocker@2.1.9"
+        },
+        {
+          "@id": "pkg:npm/vitest@2.1.9"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "component_not_present",
+      "impact_statement": "Vitest and @vitest/mocker are isolated devDependencies utilized exclusively for automated test execution during local development and CI pipelines. They are completely excluded from production builds and compiled release archives."
+    },
+    {
+      "vulnerability": {
+        "name": "GHSA-67mh-4wv8-2f99",
+        "description": "esbuild development server cross-origin request handling vulnerability"
+      },
+      "products": [
+        {
+          "@id": "pkg:npm/esbuild@0.24.2"
+        },
+        {
+          "@id": "pkg:npm/vite@6.4.2"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "component_not_present",
+      "impact_statement": "esbuild is an internal transitive bundler used solely by Vite/Vitest for unit test execution. The esbuild standalone development server is never run in production or bound to public network interfaces."
+    },
+    {
+      "vulnerability": {
+        "name": "GHSA-p293-qw3h-jr36",
+        "description": "Next.js Unauthenticated Remote Code Execution on windows-hosted servers"
+      },
+      "products": [
+        {
+          "@id": "pkg:npm/next@16.3.6"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "First Issues is hosted and deployed exclusively on Linux containers and Vercel Edge compute environments. Windows filesystem path handling and Windows-specific execution paths do not exist in the production runtime."
+    },
+    {
+      "vulnerability": {
+        "name": "GHSA-2xp9-vwfh-vxw4",
+        "description": "Next.js Unauthenticated Remote Code Execution in Image Optimization API when AVIF files are used"
+      },
+      "products": [
+        {
+          "@id": "pkg:npm/next@16.3.6"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "inline_mitigations_exist",
+      "impact_statement": "The First Issues application does not expose or accept arbitrary user-uploaded AVIF image files to the Next.js image optimization endpoint. Image assets are strictly limited to verified static SVG icons and trusted remote GitHub avatar endpoints."
+    }
+  ]
+}
