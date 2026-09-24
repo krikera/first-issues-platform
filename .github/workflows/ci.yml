@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
 
-# Principle of least privilege (osps_br_01_03)
+# Principle of least privilege (osps_ac_04_01, osps_br_01_03)
 permissions:
   contents: read
 
@@ -15,14 +15,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-lint:
-    name: Build & Lint
+  build-and-test:
+    name: Test, Lint & Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # osps_le_01_01
+      - name: Verify DCO Sign-off
+        if: github.event_name == 'pull_request'
+        run: |
+          COMMITS=$(git log --no-merges origin/${{ github.base_ref }}..HEAD --format="%H")
+          for COMMIT in $COMMITS; do
+            if ! git log -n 1 --format="%B" $COMMIT | grep -E -q "^Signed-off-by: .+ <.+@.+>"; then
+              echo "❌ Error: Commit $COMMIT is missing a valid Developer Certificate of Origin (DCO) sign-off."
+              echo "Each commit must include: Signed-off-by: Name <email@example.com>"
+              echo "Please amend with: git commit --amend -s"
+              exit 1
+            fi
+          done
+          echo "✅ All commits have valid DCO sign-offs."
 
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
@@ -30,11 +47,16 @@ jobs:
           node-version: 20
           cache: npm
 
+      # osps_br_05_01
       - name: Install dependencies
         run: npm ci
 
       - name: Generate Prisma Client
         run: npx prisma generate
+
+      # osps_qa_06_01
+      - name: Run Automated Test Suite
+        run: npm test
 
       - name: Typecheck / Lint
         run: npm run lint
@@ -44,4 +66,3 @@ jobs:
         env:
           NEXT_PUBLIC_APP_URL: http://localhost:3000
           JWT_SECRET_KEY: ci-build-secret-key-at-least-32-characters-long
-

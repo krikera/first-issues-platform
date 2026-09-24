@@ -1,0 +1,73 @@
+name: Release & Attestation
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  build-and-release:
+    name: Build, Sign & Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # osps_br_05_01
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      # osps_qa_06_01
+      - name: Run Automated Test Suite
+        run: npm test
+
+      - name: Build Application
+        run: npm run build
+        env:
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          JWT_SECRET_KEY: ci-build-secret-key-at-least-32-characters-long
+
+      # osps_br_02_01
+      - name: Package Release Archive
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          ARCHIVE_NAME="first-issues-${VERSION}.tar.gz"
+          tar --exclude='./node_modules' --exclude='./.git' --exclude='./.next/cache' -czf "${ARCHIVE_NAME}" .
+          sha256sum "${ARCHIVE_NAME}" > checksums.txt
+          echo "ARCHIVE_NAME=${ARCHIVE_NAME}" >> $GITHUB_ENV
+
+      # osps_br_06_01
+      - name: Generate SLSA Build Provenance Attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: ${{ env.ARCHIVE_NAME }}
+
+      # osps_br_04_01
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: First Issues ${{ github.ref_name }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false
+          files: |
+            ${{ env.ARCHIVE_NAME }}
+            checksums.txt
