@@ -26,7 +26,7 @@ export async function GET() {
         },
         database: dbStatus,
       },
-      version: "2.0.0",
+      version: "1.0.0",
       stack: "next.js",
     },
     { status: isHealthy ? 200 : 503 }

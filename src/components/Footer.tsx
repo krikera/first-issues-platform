@@ -81,6 +81,14 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link
+                  href="/changelog"
+                  className="text-ink-subtle hover:text-ink transition-colors"
+                >
+                  Changelog
+                </Link>
+              </li>
+              <li>
                 <a
                   href="https://docs.github.com/en/get-started/quickstart/contributing-to-projects"
                   target="_blank"

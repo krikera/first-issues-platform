@@ -104,31 +104,32 @@ first-issues/
 ## Available Scripts
 
 - `npm run dev`: Starts the Next.js development server.
+- `npm test`: Executes the automated Vitest test suite. <!-- osps_qa_06_01 -->
 - `npm run build`: Generates Prisma client and builds the application for production.
 - `npm run start`: Runs the compiled production server.
-- `npm run lint`: Executes Next.js ESLint rules.
+- `npm run lint`: Executes Next.js ESLint / TypeScript typechecks.
 - `npm run db:push`: Synchronizes Prisma schema directly with the PostgreSQL database.
 - `npm run db:studio`: Opens Prisma Studio GUI for database management.
 
-## Contributing
+## Contributing & Governance
 
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature/your-feature`).
-3. Commit your changes (`git commit -m 'Add your feature'`).
-4. Push to the branch (`git push origin feature/your-feature`).
-5. Open a Pull Request.
-
-Refer to [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+- [CONTRIBUTING.md](CONTRIBUTING.md): Contribution workflow, style guidelines, quality checks, and Developer Certificate of Origin (DCO `git commit -s`) requirement. <!-- osps_le_01_01, osps_gv_03_02 -->
+- [GOVERNANCE.md](GOVERNANCE.md): Project roles, maintainer responsibilities, and Sensitive Resource Access Matrix. <!-- osps_gv_01_01, osps_gv_01_02 -->
+- [SECURITY.md](SECURITY.md): Coordinated Vulnerability Disclosure (CVD) policy, reporting SLAs, and public security advisories. <!-- osps_vm_01_01, osps_vm_03_01, osps_vm_04_01 -->
+- [CHANGELOG.md](CHANGELOG.md): Descriptive release log of functional and security modifications. <!-- osps_br_04_01 -->
+- [docs/security-assessment.md](docs/security-assessment.md): STRIDE threat modeling and architectural security analysis. <!-- osps_sa_03_01 -->
+- [docs/dependency-management.md](docs/dependency-management.md): Criteria for selecting, obtaining, and tracking dependencies. <!-- osps_do_06_01 -->
 
 ## Repository Scope & Distribution
 
-- **Repository Scope**: First Issues is maintained as a single, unified source repository (`krikera/first-issues-platform`). The project does not maintain multiple or external subproject repositories (`osps_qa_04_01`).
-- **Encrypted Channels**: All official project channels (repository, documentation, issue tracker) are delivered exclusively over encrypted HTTPS/TLS (`osps_br_03_01`).
-- **Distribution Authenticity**: Official distributions and dependencies are managed through cryptographically authenticated channels (Git over SSH/HTTPS and npm with SHA-512 package lockfiles) (`osps_br_03_02`).
+- **Repository Scope**: First Issues is maintained as a single, unified source repository (`krikera/first-issues-platform`). The project does not maintain multiple or external subproject repositories. <!-- osps_qa_04_01 -->
+- **Encrypted Channels**: All official project channels (repository, documentation, issue tracker) are delivered exclusively over encrypted HTTPS/TLS. <!-- osps_br_03_01 -->
+- **Distribution Authenticity**: Official distributions and dependencies are managed through cryptographically authenticated channels (Git over SSH/HTTPS and npm with SHA-512 package lockfiles). <!-- osps_br_03_02 -->
+- **Release Provenance**: Official releases are cryptographically signed with SLSA build provenance attestations and SHA-256 manifests. <!-- osps_br_02_01, osps_br_06_01 -->
 
 ## License
 
-Distributed under the MIT License. Both the source code and all released software assets are licensed under the MIT License (`osps_le_02_01`, `osps_le_02_02`). See [LICENSE](LICENSE) for details.
+Distributed under the MIT License. Both the source code and all released software assets are licensed under the MIT License. <!-- osps_le_02_01, osps_le_02_02 --> See [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
