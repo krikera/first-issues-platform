@@ -28,18 +28,19 @@ We love contributions from the community! Here are some areas where we're lookin
 
 ## How to contribute
 
-1. **Branch Protection**: Direct commits or pushes to the primary branch (`main`) are strictly prohibited (`osps_ac_03_01`). All contributions must be submitted via Pull Requests.
+1. **Branch Protection**: Direct commits or pushes to the primary branch (`main`) are strictly prohibited. <!-- osps_ac_03_01 --> All contributions must be submitted via Pull Requests.
 2. Fork the repository and create a descriptive feature branch from `main` (e.g., `git checkout -b feature/issue-filters`).
-3. If you've added new code, add automated tests covering the functionality.
-4. If you've changed APIs, update the corresponding documentation in `docs/` and `README.md`.
-5. Ensure the project builds cleanly and all checks pass (`npm run build` && `npm run lint`).
-6. Make sure your code passes TypeScript type checks (`npx tsc --noEmit`).
-7. Never commit private credentials, API keys, or `.env` files (`osps_br_07_01`).
-8. Submit your Pull Request using the repository pull request template for review.
+3. **Legal Authorization / DCO**: All commits must assert that the contributor is legally authorized to submit the code under the project's MIT license. <!-- osps_le_01_01 --> Use `git commit -s` to include a Developer Certificate of Origin `Signed-off-by:` trailer on every commit.
+4. If you've added new code, add automated tests covering the functionality. <!-- osps_qa_06_01 -->
+5. If you've changed APIs, update the corresponding documentation in `docs/` and `README.md`.
+6. Ensure the project builds cleanly, tests pass, and all checks pass (`npm test`, `npm run lint`, `npm run build`).
+7. Make sure your code passes TypeScript type checks (`npx tsc --noEmit`).
+8. Never commit private credentials, API keys, or `.env` files. <!-- osps_br_07_01 -->
+9. Submit your Pull Request using the repository pull request template for review.
 
 ### Reporting Bugs & Defects
 
-We welcome bug and defect reports to maintain high project quality (`osps_do_02_01`):
+We welcome bug and defect reports to maintain high project quality: <!-- osps_do_02_01 -->
 
 1. **Search Existing Reports**: Ensure the bug was not already reported by searching under [GitHub Issues](https://github.com/krikera/first-issues-platform/issues).
 2. **Submit Structured Defect Report**: Open a new issue using our [Bug Report Template](https://github.com/krikera/first-issues-platform/issues/new?template=bug_report.yml).
@@ -59,12 +60,17 @@ We welcome bug and defect reports to maintain high project quality (`osps_do_02_
 
 ## Style guide
 
-### Git Commit Messages
+### Git Commit Messages & DCO Sign-off <!-- osps_le_01_01 -->
 
 - Use the present tense ("Add feature" not "Added feature")
 - Use the imperative mood ("Move cursor to..." not "Moves cursor to...")
 - Limit the first line to 72 characters or less
 - Reference issues and pull requests liberally after the first line
+- **Mandatory DCO Sign-off**: Every commit must be signed off using `-s` (`git commit -s -m "feat: description"`), which adds:
+  ```
+  Signed-off-by: Your Name <your.email@example.com>
+  ```
+  By adding this trailer, you certify to the [Developer Certificate of Origin (DCO) 1.1](https://developercertificate.org/). CI will block any PRs with unsigned commits.
 
 ### CSS Style Guide
 
@@ -72,7 +78,7 @@ We use Tailwind CSS for styling. Please refer to the [Tailwind CSS documentation
 
 ## Community & Public Discussions
 
-We provide multiple mechanisms for public discussions about proposed changes, architectural decisions, and usage obstacles (`osps_gv_02_01`):
+We provide multiple mechanisms for public discussions about proposed changes, architectural decisions, and usage obstacles: <!-- osps_gv_02_01 -->
 
 - **GitHub Discussions**: Use [GitHub Discussions](https://github.com/krikera/first-issues-platform/discussions) for general questions, feature brainstorming, and architectural proposals.
 - **GitHub Issues**: Use [GitHub Issues](https://github.com/krikera/first-issues-platform/issues) for specific defect reports and tracked tasks.
@@ -103,8 +109,10 @@ See `README.md` for required environment variables.
 ### Quality Checks
 
 ```bash
-npm run lint
-npx tsc --noEmit
+npm test             # Run automated Vitest test suite
+npm run lint         # Run ESLint validation
+npx tsc --noEmit     # Execute TypeScript type checking
+npm run build        # Validate Next.js production build
 ```
 
 ### Commit & PR

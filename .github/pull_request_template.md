@@ -53,6 +53,7 @@ Fixes #(issue number)
 - [ ] My changes generate no new warnings
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
+- [ ] All commits are signed off with `git commit -s` to certify legal authorization per Developer Certificate of Origin (DCO) <!-- osps_le_01_01 -->
 - [ ] Any dependent changes have been merged and published
 
 ### Security Considerations
