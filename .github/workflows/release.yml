@@ -80,7 +80,7 @@ jobs:
 
       # osps_br_04_01, osps_br_02_02, osps_qa_02_02
       - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: First Issues ${{ github.ref_name }}
           body_path: CHANGELOG.md
