@@ -72,7 +72,7 @@ jobs:
 
       # osps_br_06_01
       - name: Generate SLSA Build Provenance Attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
             ${{ env.ARCHIVE_NAME }}
